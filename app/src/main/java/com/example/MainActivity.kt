@@ -36,8 +36,8 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     setContent {
-      MyApplicationTheme(darkTheme = true) {
-        FitStudyScreen()
+      MyApplicationTheme(darkTheme = false) {
+        FiddyScreen()
       }
     }
   }
@@ -73,19 +73,16 @@ class WebAppInterface(private val context: Context) {
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun FitStudyScreen() {
+fun FiddyScreen() {
   var webViewInstance by remember { mutableStateOf<WebView?>(null) }
 
   BackHandler(enabled = true) {
     if (webViewInstance?.canGoBack() == true) {
       webViewInstance?.goBack()
     } else {
-      // Evaluate if any open modals can be closed via JS
       webViewInstance?.evaluateJavascript(
           "if (document.querySelector('.modal-backdrop.open')) { " +
               "  document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open')); " +
-              "} else if (document.getElementById('data-dropdown') && !document.getElementById('data-dropdown').classList.contains('hidden')) { " +
-              "  document.getElementById('data-dropdown').classList.add('hidden'); " +
               "}",
           null
       )
@@ -95,7 +92,7 @@ fun FitStudyScreen() {
   Box(
       modifier = Modifier
           .fillMaxSize()
-          .background(androidx.compose.ui.graphics.Color(0xFF080C15))
+          .background(androidx.compose.ui.graphics.Color(0xFFFFFFFF))
           .statusBarsPadding()
   ) {
     AndroidView(
@@ -103,7 +100,7 @@ fun FitStudyScreen() {
         factory = { ctx ->
           WebView(ctx).apply {
             webViewInstance = this
-            setBackgroundColor(Color.parseColor("#080c15"))
+            setBackgroundColor(Color.parseColor("#FFFFFF"))
             settings.apply {
               javaScriptEnabled = true
               domStorageEnabled = true

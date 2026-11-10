@@ -1,6 +1,6 @@
 {
-  "name": "FitStudy",
-  "description": "Daily habit tracker tailored for fitness and study routines with timers and analytics",
+  "name": "FIDDY",
+  "description": "Minimalist performance dashboard for Indian food nutrition tracking with Gemini AI, fitness, study routines, and analytics.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
