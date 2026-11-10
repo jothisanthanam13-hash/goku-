@@ -1,0 +1,2946 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>FitStudy Tracker - Daily Fitness & Study Habits</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#080c15',
+              card: '#0f172a',
+              cardBorder: '#1e293b',
+              emerald: '#10b981',
+              emeraldGlow: '#059669',
+              indigo: '#6366f1',
+              violet: '#8b5cf6',
+              amber: '#f59e0b'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace', 'ui-monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Custom Scrollbar & Utility styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080c15;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    
+    /* Smooth transitions */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    
+    .glow-emerald {
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3);
+    }
+    .glow-indigo {
+      box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+    }
+    .glow-amber {
+      box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.3);
+    }
+
+    /* Radial Progress Animation */
+    .circle-progress {
+      transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* Pulsing active badge */
+    @keyframes subtle-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.02); }
+    }
+    .pulse-active {
+      animation: subtle-pulse 3s infinite ease-in-out;
+    }
+
+    /* Modal transition */
+    .modal-backdrop {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-in-out;
+    }
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-content {
+      transform: translateY(20px) scale(0.96);
+      transition: transform 0.2s ease-in-out;
+    }
+    .modal-backdrop.open .modal-content {
+      transform: translateY(0) scale(1);
+    }
+  </style>
+</head>
+
+<body class="bg-[#080c15] text-slate-100 min-h-screen flex flex-col font-sans select-none antialiased pb-24 lg:pb-8">
+
+  <!-- ================= TOP NAVIGATION / HEADER ================= -->
+  <header class="sticky top-0 z-40 bg-[#080c15]/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-2.5 cursor-pointer" onclick="switchTab('dashboard')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 via-teal-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <i data-lucide="zap" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">FitStudy</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PRO</span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Fitness & Deep-Work Routine</p>
+        </div>
+      </div>
+
+      <!-- Streaks Pill & Today Quick Action -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Streak Badges -->
+        <div class="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-full px-3 py-1.5 shadow-sm text-xs" title="Daily Streaks">
+          <div class="flex items-center gap-1 text-emerald-400 font-semibold" title="Fitness Streak">
+            <i data-lucide="flame" class="w-4 h-4 fill-emerald-500/30"></i>
+            <span id="header-fit-streak">0</span>d
+          </div>
+          <span class="text-slate-600">|</span>
+          <div class="flex items-center gap-1 text-indigo-400 font-semibold" title="Study Streak">
+            <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+            <span id="header-study-streak">0</span>d
+          </div>
+          <span class="text-slate-600">|</span>
+          <div class="flex items-center gap-1 text-amber-400 font-bold" title="Perfect Days Streak">
+            <i data-lucide="award" class="w-3.5 h-3.5 fill-amber-400/20"></i>
+            <span id="header-perfect-streak">0</span>
+          </div>
+        </div>
+
+        <!-- Jump to Today Button -->
+        <button id="btn-jump-today" onclick="jumpToToday()" class="hidden sm:flex items-center gap-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>Today</span>
+        </button>
+
+        <!-- Backup Data Button -->
+        <div class="relative">
+          <button onclick="toggleDataMenu()" class="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition" title="Data Backup / Settings">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+          </button>
+          <!-- Dropdown Menu -->
+          <div id="data-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-2 z-50 text-xs">
+            <div class="px-3 py-1.5 text-slate-400 font-semibold border-b border-slate-800 text-[10px] uppercase tracking-wider">Data Management</div>
+            <button onclick="exportDataBackup()" class="w-full text-left px-3 py-2 text-slate-200 hover:bg-slate-800 flex items-center gap-2">
+              <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i> Export JSON Backup
+            </button>
+            <label class="w-full text-left px-3 py-2 text-slate-200 hover:bg-slate-800 flex items-center gap-2 cursor-pointer">
+              <i data-lucide="upload" class="w-3.5 h-3.5 text-indigo-400"></i> Import JSON Backup
+              <input type="file" id="file-import-input" accept=".json" class="hidden" onchange="importDataBackup(event)">
+            </label>
+            <div class="my-1 border-t border-slate-800"></div>
+            <button onclick="toggleSoundPreference()" class="w-full text-left px-3 py-2 text-slate-200 hover:bg-slate-800 flex items-center justify-between">
+              <span class="flex items-center gap-2"><i data-lucide="volume-2" class="w-3.5 h-3.5 text-amber-400"></i> Timer Chimes</span>
+              <span id="sound-pref-badge" class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400">ON</span>
+            </button>
+            <button onclick="resetToSampleData()" class="w-full text-left px-3 py-2 text-rose-400 hover:bg-rose-950/40 flex items-center gap-2">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset Sample Data
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= INTERACTIVE DATE & WEEK BAR ================= -->
+  <section class="bg-slate-900/60 border-b border-slate-800/80 px-3 py-2.5">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      
+      <!-- Week Navigation Controls -->
+      <div class="flex items-center gap-2 w-full md:w-auto justify-between">
+        <div class="flex items-center gap-1">
+          <button onclick="changeWeek(-1)" class="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition" title="Previous Week">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          <button onclick="changeWeek(1)" class="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition" title="Next Week">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+          <span id="week-range-label" class="text-xs font-semibold text-slate-300 ml-1">Nov 03 - Nov 09</span>
+        </div>
+
+        <!-- Date status indicator tag -->
+        <div id="date-status-banner" class="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>Today's Active View</span>
+        </div>
+
+        <button onclick="jumpToToday()" class="sm:hidden text-xs bg-slate-800 text-slate-200 px-2.5 py-1 rounded border border-slate-700">
+          Today
+        </button>
+      </div>
+
+      <!-- 7-Day Interactive Day Strip -->
+      <div id="week-days-container" class="grid grid-cols-7 gap-1.5 w-full md:w-auto overflow-x-auto py-1">
+        <!-- Rendered dynamically by renderWeekStrip() -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= DESKTOP TABS BAR ================= -->
+  <nav class="hidden lg:block bg-[#080c15] border-b border-slate-800/60 px-4">
+    <div class="max-w-7xl mx-auto flex items-center gap-1">
+      <button onclick="switchTab('dashboard')" id="nav-tab-dashboard" class="nav-tab flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 border-emerald-400 text-emerald-400 transition">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        <span>Dashboard</span>
+      </button>
+      <button onclick="switchTab('fitness')" id="nav-tab-fitness" class="nav-tab flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+        <i data-lucide="dumbbell" class="w-4 h-4"></i>
+        <span>Fitness Tracker</span>
+        <span id="tab-fit-badge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">0m</span>
+      </button>
+      <button onclick="switchTab('study')" id="nav-tab-study" class="nav-tab flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+        <i data-lucide="brain" class="w-4 h-4"></i>
+        <span>Study & Deep Work</span>
+        <span id="tab-study-badge" class="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-indigo-500/20 text-indigo-300 font-bold">0h</span>
+      </button>
+      <button onclick="switchTab('analytics')" id="nav-tab-analytics" class="nav-tab flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+        <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+        <span>Analytics & Heatmap</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ================= MAIN CONTENT VIEWS ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4">
+
+    <!-- ----------------- 1. DASHBOARD VIEW ----------------- -->
+    <div id="view-dashboard" class="tab-view space-y-5">
+      
+      <!-- Top Hero: Daily Completion Ring & Key Stats Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        
+        <!-- Big Circular Progress Ring -->
+        <div class="lg:col-span-5 glass-panel rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-6 relative overflow-hidden">
+          <div class="absolute -right-12 -top-12 w-44 h-44 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute -left-12 -bottom-12 w-44 h-44 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+          <!-- Progress SVG -->
+          <div class="relative w-36 h-36 flex-shrink-0 flex items-center justify-center">
+            <svg class="w-36 h-36" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="50" stroke="#1e293b" stroke-width="10" fill="none" />
+              <!-- Combined Progress Circle -->
+              <circle id="daily-progress-circle" cx="60" cy="60" r="50" stroke="url(#progressGradient)" stroke-width="10" 
+                      fill="none" stroke-linecap="round" stroke-dasharray="314.159" stroke-dashoffset="314.159" class="circle-progress" />
+              <defs>
+                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#10b981" />
+                  <stop offset="60%" stop-color="#06b6d4" />
+                  <stop offset="100%" stop-color="#8b5cf6" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="absolute flex flex-col items-center justify-center text-center">
+              <span id="daily-progress-percent" class="text-3xl font-black text-white tracking-tighter">0%</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Routine</span>
+            </div>
+          </div>
+
+          <!-- Progress Details -->
+          <div class="flex-1 space-y-3 w-full">
+            <div>
+              <div class="flex items-center justify-between text-xs font-semibold mb-1">
+                <span class="text-slate-300 flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span> Fitness Goal
+                </span>
+                <span id="dash-fit-goal-text" class="text-emerald-400 font-mono">0 / 45m</span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div id="dash-fit-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between text-xs font-semibold mb-1">
+                <span class="text-slate-300 flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 inline-block"></span> Study Target
+                </span>
+                <span id="dash-study-goal-text" class="text-indigo-400 font-mono">0.0 / 3.0h</span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div id="dash-study-bar" class="bg-gradient-to-r from-indigo-500 to-violet-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between text-xs text-slate-400">
+              <span id="dash-perfect-status">⚪ Complete both to score a Perfect Day</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Launch Action Cards -->
+        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Quick Log Fitness -->
+          <div class="glass-panel rounded-2xl p-5 border-emerald-500/20 hover:border-emerald-500/40 transition flex flex-col justify-between group">
+            <div class="flex items-start justify-between">
+              <div class="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 group-hover:scale-105 transition">
+                <i data-lucide="dumbbell" class="w-6 h-6"></i>
+              </div>
+              <span class="text-xs font-semibold text-emerald-400 px-2 py-0.5 rounded-full bg-emerald-500/10">Fitness Hub</span>
+            </div>
+            <div class="my-3">
+              <h3 class="text-base font-bold text-white">Daily Workout & Drills</h3>
+              <p class="text-xs text-slate-400 mt-1">Log workout sessions, cardio, badminton, or launch interval timer.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openWorkoutModal()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/20 transition">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Log Workout
+              </button>
+              <button onclick="switchTab('fitness'); scrollToTimer();" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-xl border border-slate-700 transition" title="Open Stopwatch / Interval Timer">
+                <i data-lucide="timer" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Launch Study Pomodoro -->
+          <div class="glass-panel rounded-2xl p-5 border-indigo-500/20 hover:border-indigo-500/40 transition flex flex-col justify-between group">
+            <div class="flex items-start justify-between">
+              <div class="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 group-hover:scale-105 transition">
+                <i data-lucide="brain" class="w-6 h-6"></i>
+              </div>
+              <span class="text-xs font-semibold text-indigo-400 px-2 py-0.5 rounded-full bg-indigo-500/10">Focus Session</span>
+            </div>
+            <div class="my-3">
+              <h3 class="text-base font-bold text-white">Pomodoro & Syllabus</h3>
+              <p class="text-xs text-slate-400 mt-1">Deep work intervals with auto-logging and syllabus milestones.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="switchTab('study'); startPomodoroDirect();" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-600/20 transition">
+                <i data-lucide="play" class="w-3.5 h-3.5 fill-white"></i> Start Pomodoro
+              </button>
+              <button onclick="openStudyTaskModal()" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-indigo-400 rounded-xl border border-slate-700 transition" title="Add Study Task">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Dashboard Middle: Daily Quick Checklist & Today's Summary Stream -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Daily Quick Checklist Card -->
+        <div class="lg:col-span-5 glass-panel rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+              <h2 class="text-sm font-bold text-white uppercase tracking-wider">Daily Habit Checklist</h2>
+            </div>
+            <span id="checklist-counter" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">0/5 Done</span>
+          </div>
+
+          <!-- Pre-defined + Custom Checklist Items -->
+          <div id="daily-checklist-container" class="space-y-2">
+            <!-- Rendered by renderDailyChecklist() -->
+          </div>
+
+          <!-- Hydration Quick Tracker -->
+          <div class="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-sky-500/10 border border-sky-500/30 text-sky-400 flex items-center justify-center">
+                <i data-lucide="droplet" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-white">Daily Hydration</div>
+                <div class="text-[11px] text-slate-400"><span id="water-count-val">0</span> / 8 Glasses (2.0L)</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button onclick="updateWater(-1)" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 flex items-center justify-center font-bold text-sm">-</button>
+              <button onclick="updateWater(1)" class="w-8 h-8 rounded-lg bg-sky-600 hover:bg-sky-500 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-sky-600/20">+</button>
+            </div>
+          </div>
+
+          <!-- Add Custom Habit Input -->
+          <form onsubmit="addCustomChecklistItem(event)" class="flex items-center gap-2 pt-2 border-t border-slate-800">
+            <input type="text" id="input-new-habit" placeholder="+ Add daily routine habit..." class="flex-1 bg-slate-800/80 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+            <button type="submit" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700">Add</button>
+          </form>
+        </div>
+
+        <!-- Today's Activity Stream & Notes -->
+        <div class="lg:col-span-7 space-y-4">
+          
+          <!-- Activity Timeline Logs -->
+          <div class="glass-panel rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="activity" class="w-5 h-5 text-indigo-400"></i>
+                <h2 class="text-sm font-bold text-white uppercase tracking-wider">Today's Logged Sessions</h2>
+              </div>
+              <span id="dash-total-sessions-badge" class="text-xs text-slate-400 font-mono">0 sessions</span>
+            </div>
+
+            <!-- Activity List Container -->
+            <div id="dash-activity-stream" class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+              <!-- Rendered by renderDashboardActivity() -->
+            </div>
+          </div>
+
+          <!-- Daily Reflection / Note Box -->
+          <div class="glass-panel rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5 text-amber-400"></i> Daily Reflection & Energy Notes
+              </span>
+              <span id="note-saved-indicator" class="text-[10px] text-emerald-400 opacity-0 transition-opacity">Saved ✓</span>
+            </div>
+            <textarea id="daily-notes-input" oninput="saveDailyNotesDebounced()" placeholder="How did today's workout and study sessions feel? Notes on energy, diet, breakthrough topics..." class="w-full h-20 bg-slate-800/70 border border-slate-700/70 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ----------------- 2. FITNESS HUB VIEW ----------------- -->
+    <div id="view-fitness" class="tab-view hidden space-y-5">
+      
+      <!-- Fitness Header Summary Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="glass-panel rounded-xl p-3.5 border-emerald-500/20">
+          <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Active Time</div>
+          <div id="fit-stat-duration" class="text-2xl font-black text-white mt-1">0 <span class="text-xs font-normal text-slate-400">min</span></div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Target: 45 min</div>
+        </div>
+
+        <div class="glass-panel rounded-xl p-3.5 border-emerald-500/20">
+          <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Calories Burned</div>
+          <div id="fit-stat-calories" class="text-2xl font-black text-white mt-1">0 <span class="text-xs font-normal text-slate-400">kcal</span></div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Estimated output</div>
+        </div>
+
+        <div class="glass-panel rounded-xl p-3.5 border-emerald-500/20">
+          <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Workouts Logged</div>
+          <div id="fit-stat-count" class="text-2xl font-black text-white mt-1">0 <span class="text-xs font-normal text-slate-400">sessions</span></div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Today's entries</div>
+        </div>
+
+        <div class="glass-panel rounded-xl p-3.5 border-emerald-500/20">
+          <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Fitness Streak</div>
+          <div id="fit-stat-streak" class="text-2xl font-black text-emerald-400 mt-1">0 <span class="text-xs font-normal text-slate-400">days</span></div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Best: <span id="fit-stat-best-streak">0</span> days</div>
+        </div>
+      </div>
+
+      <!-- Main Fitness Grid: Interactive Stopwatch & Interval Tool + Session Logging -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Left: Interactive Stopwatch & Interval Tool -->
+        <div id="fitness-timer-section" class="lg:col-span-5 space-y-4">
+          <div class="glass-panel rounded-2xl p-5 border-emerald-500/30 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <i data-lucide="timer" class="w-5 h-5 text-emerald-400"></i>
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Interval & Stopwatch Tool</h3>
+              </div>
+              <!-- Tool Mode Switcher -->
+              <div class="flex bg-slate-800 rounded-lg p-0.5 text-xs font-semibold">
+                <button onclick="setTimerToolMode('stopwatch')" id="btn-mode-stopwatch" class="px-2.5 py-1 rounded-md bg-emerald-600 text-white transition">Stopwatch</button>
+                <button onclick="setTimerToolMode('interval')" id="btn-mode-interval" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200 transition">HIIT Rounds</button>
+              </div>
+            </div>
+
+            <!-- STOPWATCH MODE CONTAINER -->
+            <div id="tool-stopwatch-container" class="space-y-4 text-center">
+              <div class="py-6 bg-slate-950/60 rounded-2xl border border-slate-800/80">
+                <div id="stopwatch-display" class="font-mono text-5xl font-black text-emerald-400 tracking-wider">00:00.00</div>
+                <div class="text-[11px] text-slate-400 uppercase tracking-widest mt-1">MM : SS . MS</div>
+              </div>
+
+              <!-- Stopwatch Action Buttons -->
+              <div class="flex items-center justify-center gap-3">
+                <button id="btn-stopwatch-start" onclick="toggleStopwatch()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition">
+                  <i data-lucide="play" class="w-4 h-4 fill-white"></i> Start
+                </button>
+                <button onclick="lapStopwatch()" id="btn-stopwatch-lap" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm rounded-xl border border-slate-700 transition">
+                  Lap
+                </button>
+                <button onclick="resetStopwatch()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm rounded-xl border border-slate-700 transition">
+                  Reset
+                </button>
+              </div>
+
+              <!-- Save Stopwatch as Workout -->
+              <div id="stopwatch-save-row" class="hidden pt-2 border-t border-slate-800">
+                <button onclick="saveStopwatchAsWorkout()" class="w-full py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 text-xs font-bold rounded-xl border border-emerald-500/30 transition flex items-center justify-center gap-1.5">
+                  <i data-lucide="save" class="w-3.5 h-3.5"></i> Save elapsed time as Workout
+                </button>
+              </div>
+
+              <!-- Laps List -->
+              <div id="stopwatch-laps-container" class="max-h-36 overflow-y-auto space-y-1 text-xs font-mono text-slate-300 pr-1">
+                <!-- Lap rows rendered here -->
+              </div>
+            </div>
+
+            <!-- INTERVAL / HIIT MODE CONTAINER -->
+            <div id="tool-interval-container" class="hidden space-y-4 text-center">
+              <div id="interval-status-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 uppercase tracking-wider mb-1">
+                Ready to Work
+              </div>
+
+              <!-- Big Interval Countdown -->
+              <div id="interval-screen" class="py-6 bg-slate-950/60 rounded-2xl border border-slate-800 transition-colors">
+                <div id="interval-timer-display" class="font-mono text-5xl font-black text-emerald-400">00:45</div>
+                <div id="interval-subtext" class="text-xs text-slate-400 mt-1">Round <span id="interval-current-round">1</span> of <span id="interval-total-rounds">5</span></div>
+              </div>
+
+              <!-- Interval Settings Inputs (When paused) -->
+              <div id="interval-settings-inputs" class="grid grid-cols-3 gap-2 text-left">
+                <div class="bg-slate-800/80 p-2 rounded-xl border border-slate-700/80">
+                  <label class="text-[10px] font-semibold text-slate-400 uppercase">Work (s)</label>
+                  <input type="number" id="input-interval-work" value="45" min="5" max="300" class="w-full bg-transparent font-mono text-sm font-bold text-emerald-400 focus:outline-none">
+                </div>
+                <div class="bg-slate-800/80 p-2 rounded-xl border border-slate-700/80">
+                  <label class="text-[10px] font-semibold text-slate-400 uppercase">Rest (s)</label>
+                  <input type="number" id="input-interval-rest" value="15" min="5" max="180" class="w-full bg-transparent font-mono text-sm font-bold text-amber-400 focus:outline-none">
+                </div>
+                <div class="bg-slate-800/80 p-2 rounded-xl border border-slate-700/80">
+                  <label class="text-[10px] font-semibold text-slate-400 uppercase">Rounds</label>
+                  <input type="number" id="input-interval-rounds" value="5" min="1" max="25" class="w-full bg-transparent font-mono text-sm font-bold text-white focus:outline-none">
+                </div>
+              </div>
+
+              <!-- Interval Action Buttons -->
+              <div class="flex items-center justify-center gap-3">
+                <button id="btn-interval-start" onclick="toggleIntervalTimer()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition">
+                  <i data-lucide="play" class="w-4 h-4 fill-white"></i> Start Routine
+                </button>
+                <button onclick="resetIntervalTimer()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm rounded-xl border border-slate-700 transition">
+                  Reset
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Quick Daily Fitness Checklist Drill -->
+          <div class="glass-panel rounded-2xl p-4 space-y-3">
+            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="zap" class="w-4 h-4 text-emerald-400"></i> Posture & Mobility Quick Drills
+            </h4>
+            <div class="space-y-2 text-xs">
+              <label class="flex items-center gap-2.5 p-2 bg-slate-800/40 rounded-xl cursor-pointer hover:bg-slate-800/70">
+                <input type="checkbox" onchange="toggleFitnessSubCheck('hip_flexor', this.checked)" id="chk-hip" class="w-4 h-4 rounded text-emerald-600 focus:ring-0 bg-slate-900 border-slate-700">
+                <span>Hip Flexor & Hamstring Stretch (3 mins)</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-2 bg-slate-800/40 rounded-xl cursor-pointer hover:bg-slate-800/70">
+                <input type="checkbox" onchange="toggleFitnessSubCheck('core_plank', this.checked)" id="chk-plank" class="w-4 h-4 rounded text-emerald-600 focus:ring-0 bg-slate-900 border-slate-700">
+                <span>Core Planks & Hollow Holds (2 rounds)</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-2 bg-slate-800/40 rounded-xl cursor-pointer hover:bg-slate-800/70">
+                <input type="checkbox" onchange="toggleFitnessSubCheck('shoulder_band', this.checked)" id="chk-shoulder" class="w-4 h-4 rounded text-emerald-600 focus:ring-0 bg-slate-900 border-slate-700">
+                <span>Desk Posture / Thoracic Opener (2 mins)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Logged Workout Sessions List & Actions -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="glass-panel rounded-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                  <i data-lucide="dumbbell" class="w-5 h-5 text-emerald-400"></i> Workout Sessions
+                </h3>
+                <p class="text-xs text-slate-400">Logged exercises & sports activities for this date.</p>
+              </div>
+              <button onclick="openWorkoutModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 px-3.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition">
+                <i data-lucide="plus" class="w-4 h-4"></i> Log Session
+              </button>
+            </div>
+
+            <!-- Workout Cards Container -->
+            <div id="fitness-sessions-list" class="space-y-3">
+              <!-- Rendered by renderFitnessSessions() -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ----------------- 3. STUDY & DEEP WORK VIEW ----------------- -->
+    <div id="view-study" class="tab-view hidden space-y-5">
+      
+      <!-- Study Summary Stats Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="glass-panel rounded-xl p-3.5 border-indigo-500/20">
+          <div class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider">Deep Work Time</div>
+          <div id="study-stat-hours" class="text-2xl font-black text-white mt-1">0.0 <span class="text-xs font-normal text-slate-400">hrs</span></div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Target: 3.0 hrs</div>
+        </div>
+
+        <div class="glass-panel rounded-xl p-3.5 border-indigo-500/20">
+          <div class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider">Focus Rounds</div>
+          <div id="study-stat-sessions" class="text-2xl font-black text-white mt-1">0 <span class="text-xs font-normal text-slate-400">pomodoros</span></div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Logged sessions</div>
+        </div>
+
+        <div class="glass-panel rounded-xl p-3.5 border-indigo-500/20">
+          <div class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider">Active Subjects</div>
+          <div id="study-stat-subjects-count" class="text-2xl font-black text-white mt-1">0 <span class="text-xs font-normal text-slate-400">topics</span></div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Studied today</div>
+        </div>
+
+        <div class="glass-panel rounded-xl p-3.5 border-indigo-500/20">
+          <div class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider">Study Streak</div>
+          <div id="study-stat-streak" class="text-2xl font-black text-indigo-400 mt-1">0 <span class="text-xs font-normal text-slate-400">days</span></div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Best: <span id="study-stat-best-streak">0</span> days</div>
+        </div>
+      </div>
+
+      <!-- Main Study Layout: Pomodoro Timer + Syllabus Checklist & Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Left: Integrated Pomodoro / Focus Timer -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="glass-panel rounded-2xl p-5 border-indigo-500/30 relative overflow-hidden text-center">
+            
+            <div class="flex items-center justify-between mb-3 text-left">
+              <div>
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                  <i data-lucide="clock" class="w-4 h-4 text-indigo-400"></i> Pomodoro Focus Engine
+                </h3>
+                <span id="pomo-mode-badge" class="text-[11px] font-semibold text-indigo-400">Deep Work (25 min)</span>
+              </div>
+
+              <!-- Preset Switcher -->
+              <div class="flex bg-slate-800 rounded-lg p-0.5 text-[11px] font-semibold">
+                <button onclick="setPomoPreset(25, 5, 'Classic 25/5')" id="btn-pomo-25" class="px-2 py-1 rounded bg-indigo-600 text-white">25/5</button>
+                <button onclick="setPomoPreset(50, 10, 'Deep Flow 50/10')" id="btn-pomo-50" class="px-2 py-1 rounded text-slate-400 hover:text-slate-200">50/10</button>
+                <button onclick="setPomoPreset(15, 3, 'Quick Sprint 15m')" id="btn-pomo-15" class="px-2 py-1 rounded text-slate-400 hover:text-slate-200">15m</button>
+              </div>
+            </div>
+
+            <!-- Subject Selector for Active Session -->
+            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800 mb-4 text-left">
+              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Target Subject / Topic</label>
+              <div class="flex items-center gap-2">
+                <select id="pomo-subject-select" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 font-semibold focus:outline-none focus:border-indigo-500">
+                  <option value="Computer Science">Computer Science & Coding</option>
+                  <option value="Mathematics">Mathematics / Algorithms</option>
+                  <option value="System Design">System Architecture</option>
+                  <option value="Reading & Research">Reading & Research</option>
+                  <option value="Language Study">Language & Vocabulary</option>
+                  <option value="General Study">General Deep Work</option>
+                </select>
+                <button onclick="promptAddCustomSubject()" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700" title="Add Subject">
+                  <i data-lucide="plus" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Circular Pomodoro SVG Timer -->
+            <div class="relative w-56 h-56 mx-auto my-2 flex items-center justify-center">
+              <svg class="w-56 h-56" viewBox="0 0 160 160">
+                <circle cx="80" cy="80" r="70" stroke="#1e293b" stroke-width="8" fill="none" />
+                <circle id="pomo-circle-progress" cx="80" cy="80" r="70" stroke="#6366f1" stroke-width="8" 
+                        fill="none" stroke-linecap="round" stroke-dasharray="439.82" stroke-dashoffset="0" class="circle-progress" />
+              </svg>
+              <div class="absolute flex flex-col items-center justify-center">
+                <span id="pomo-timer-display" class="font-mono text-4xl font-black text-white tracking-tight">25:00</span>
+                <span id="pomo-status-label" class="text-[11px] font-bold uppercase tracking-wider text-indigo-400 mt-1">Focus Mode</span>
+              </div>
+            </div>
+
+            <!-- Pomodoro Controls -->
+            <div class="flex items-center justify-center gap-3 mt-4">
+              <button id="btn-pomo-start" onclick="togglePomodoro()" class="px-7 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition">
+                <i data-lucide="play" class="w-4 h-4 fill-white"></i> Start Focus
+              </button>
+              <button onclick="resetPomodoro()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm rounded-xl border border-slate-700 transition">
+                Reset
+              </button>
+              <button onclick="skipPomodoroPhase()" class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 transition" title="Skip to Break / Work">
+                <i data-lucide="skip-forward" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- Auto Log Info -->
+            <p class="text-[11px] text-slate-400 mt-3">Completed focus intervals are automatically logged to the selected subject with audio chime notifications.</p>
+
+          </div>
+
+          <!-- Subject Time Breakdown Card -->
+          <div class="glass-panel rounded-2xl p-4 space-y-3">
+            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-400"></i> Today's Subject Breakdown
+            </h4>
+            <div id="study-subject-breakdown-list" class="space-y-2">
+              <!-- Rendered by renderSubjectBreakdown() -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Syllabus Tasks Checklist & Logged Study Sessions -->
+        <div class="lg:col-span-7 space-y-4">
+          
+          <!-- Syllabus & Study Tasks Checklist -->
+          <div class="glass-panel rounded-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                  <i data-lucide="list-todo" class="w-5 h-5 text-indigo-400"></i> Daily Syllabus & Target Tasks
+                </h3>
+                <p class="text-xs text-slate-400">Key objectives, reading chapters, and problem sets.</p>
+              </div>
+              <button onclick="openStudyTaskModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-2 px-3.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-indigo-600/30 transition">
+                <i data-lucide="plus" class="w-4 h-4"></i> Add Target
+              </button>
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="flex items-center gap-1.5 border-b border-slate-800 pb-2 text-xs">
+              <button onclick="setStudyTaskFilter('all')" id="filter-task-all" class="px-2.5 py-1 rounded-md bg-indigo-600 text-white font-medium">All</button>
+              <button onclick="setStudyTaskFilter('active')" id="filter-task-active" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200">Pending</button>
+              <button onclick="setStudyTaskFilter('completed')" id="filter-task-completed" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200">Completed</button>
+            </div>
+
+            <!-- Task List Container -->
+            <div id="study-tasks-list" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+              <!-- Rendered by renderStudyTasks() -->
+            </div>
+          </div>
+
+          <!-- Logged Study Sessions List -->
+          <div class="glass-panel rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <i data-lucide="book-open" class="w-4 h-4 text-indigo-400"></i> Logged Focus Sessions
+              </h4>
+              <button onclick="openManualStudySessionModal()" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold">
+                + Manual Entry
+              </button>
+            </div>
+            
+            <div id="study-sessions-list" class="space-y-2.5">
+              <!-- Rendered by renderStudySessions() -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ----------------- 4. ANALYTICS & HEATMAP VIEW ----------------- -->
+    <div id="view-analytics" class="tab-view hidden space-y-5">
+      
+      <!-- Streaks Command Center -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <!-- Fitness Streak Card -->
+        <div class="glass-panel rounded-2xl p-5 border-emerald-500/30 relative overflow-hidden">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Fitness Streak</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+              <i data-lucide="flame" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="analytics-fit-streak" class="text-4xl font-black text-white">0</span>
+            <span class="text-sm font-semibold text-slate-400">consecutive days</span>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+            <span>All-time Best:</span>
+            <span id="analytics-fit-best" class="font-bold text-emerald-400">0 days</span>
+          </div>
+        </div>
+
+        <!-- Study Streak Card -->
+        <div class="glass-panel rounded-2xl p-5 border-indigo-500/30 relative overflow-hidden">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Deep-Work Streak</span>
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+              <i data-lucide="book-open" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="analytics-study-streak" class="text-4xl font-black text-white">0</span>
+            <span class="text-sm font-semibold text-slate-400">consecutive days</span>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+            <span>All-time Best:</span>
+            <span id="analytics-study-best" class="font-bold text-indigo-400">0 days</span>
+          </div>
+        </div>
+
+        <!-- Perfect Days Streak Card -->
+        <div class="glass-panel rounded-2xl p-5 border-amber-500/30 relative overflow-hidden">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Perfect Days Streak</span>
+            <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+              <i data-lucide="award" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="analytics-perfect-streak" class="text-4xl font-black text-white">0</span>
+            <span class="text-sm font-semibold text-slate-400">perfect days</span>
+          </div>
+          <div class="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+            <span>All-time Best:</span>
+            <span id="analytics-perfect-best" class="font-bold text-amber-400">0 days</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 14-Day Visual Activity Heatmap -->
+      <div class="glass-panel rounded-2xl p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="calendar" class="w-5 h-5 text-emerald-400"></i> 14-Day Routine Consistency Matrix
+            </h3>
+            <p class="text-xs text-slate-400">Daily completion patterns across fitness and study routines.</p>
+          </div>
+          <!-- Legend -->
+          <div class="flex items-center gap-3 text-[11px] text-slate-400">
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-emerald-500"></span> Fitness</span>
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-indigo-500"></span> Study</span>
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-gradient-to-r from-emerald-500 to-indigo-500"></span> Both</span>
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-slate-800"></span> Rest</span>
+          </div>
+        </div>
+
+        <!-- Heatmap Grid Container -->
+        <div id="heatmap-grid" class="grid grid-cols-7 sm:grid-cols-14 gap-2 pt-2">
+          <!-- Rendered by renderHeatmap() -->
+        </div>
+      </div>
+
+      <!-- Past 7-14 Days Bar Chart (Study Hours vs Workout Minutes) -->
+      <div class="glass-panel rounded-2xl p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="bar-chart-2" class="w-5 h-5 text-indigo-400"></i> Hours Studied vs. Workout Minutes
+            </h3>
+            <p class="text-xs text-slate-400">Visual comparison of effort distribution over the last 7 days.</p>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <span class="flex items-center gap-1 text-indigo-400 font-semibold"><span class="w-3 h-3 rounded bg-indigo-500"></span> Study (hrs)</span>
+            <span class="flex items-center gap-1 text-emerald-400 font-semibold"><span class="w-3 h-3 rounded bg-emerald-500"></span> Fitness (min/10)</span>
+          </div>
+        </div>
+
+        <!-- SVG / CSS Bar Chart Container -->
+        <div id="analytics-bar-chart" class="h-60 w-full pt-4 flex items-end justify-between gap-2 border-b border-slate-800 pb-2">
+          <!-- Rendered by renderAnalyticsBarChart() -->
+        </div>
+        <div id="analytics-bar-chart-labels" class="grid grid-cols-7 text-center text-[10px] text-slate-400 font-mono">
+          <!-- Dates rendered here -->
+        </div>
+      </div>
+
+      <!-- Lifetime Aggregates & Backup Options -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Aggregates -->
+        <div class="glass-panel rounded-2xl p-5 space-y-3">
+          <h4 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i> Lifetime Metrics
+          </h4>
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+              <span class="text-slate-400 block">Total Study Time</span>
+              <span id="life-study-hours" class="text-xl font-bold text-white mt-1 block">0 hrs</span>
+            </div>
+            <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+              <span class="text-slate-400 block">Total Fitness Time</span>
+              <span id="life-fit-minutes" class="text-xl font-bold text-white mt-1 block">0 min</span>
+            </div>
+            <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+              <span class="text-slate-400 block">Total Workouts</span>
+              <span id="life-total-workouts" class="text-xl font-bold text-emerald-400 mt-1 block">0</span>
+            </div>
+            <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+              <span class="text-slate-400 block">Total Calories Burned</span>
+              <span id="life-total-calories" class="text-xl font-bold text-amber-400 mt-1 block">0 kcal</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data & Sync Options -->
+        <div class="glass-panel rounded-2xl p-5 space-y-3 flex flex-col justify-between">
+          <div>
+            <h4 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="database" class="w-4 h-4 text-emerald-400"></i> Local Data & Backup
+            </h4>
+            <p class="text-xs text-slate-400 mt-1">All habits, timers, and logs are securely saved in browser LocalStorage. Download a JSON backup anytime or transfer to another device.</p>
+          </div>
+          
+          <div class="flex items-center gap-3 pt-2">
+            <button onclick="exportDataBackup()" class="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i> Export Backup (.JSON)
+            </button>
+            <label class="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 flex items-center justify-center gap-1.5 cursor-pointer transition">
+              <i data-lucide="upload" class="w-4 h-4 text-indigo-400"></i> Import Backup
+              <input type="file" accept=".json" class="hidden" onchange="importDataBackup(event)">
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- ================= MOBILE APP-LIKE BOTTOM NAVIGATION BAR ================= -->
+  <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#080c15]/95 backdrop-blur-md border-t border-slate-800 px-2 py-2 flex items-center justify-around">
+    <button onclick="switchTab('dashboard')" id="mob-tab-dashboard" class="flex flex-col items-center gap-1 text-emerald-400 py-1 px-3 rounded-xl transition">
+      <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold">Dashboard</span>
+    </button>
+    <button onclick="switchTab('fitness')" id="mob-tab-fitness" class="flex flex-col items-center gap-1 text-slate-400 py-1 px-3 rounded-xl transition">
+      <i data-lucide="dumbbell" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold">Fitness</span>
+    </button>
+    <button onclick="switchTab('study')" id="mob-tab-study" class="flex flex-col items-center gap-1 text-slate-400 py-1 px-3 rounded-xl transition">
+      <i data-lucide="brain" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold">Study</span>
+    </button>
+    <button onclick="switchTab('analytics')" id="mob-tab-analytics" class="flex flex-col items-center gap-1 text-slate-400 py-1 px-3 rounded-xl transition">
+      <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold">Analytics</span>
+    </button>
+  </nav>
+
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. Log Workout Modal -->
+  <div id="modal-workout" class="modal-backdrop fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+    <div class="modal-content bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-lg p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="dumbbell" class="w-5 h-5 text-emerald-400"></i> Log Fitness Session
+        </h3>
+        <button onclick="closeModal('modal-workout')" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="submitWorkoutForm(event)" class="space-y-3.5">
+        <!-- Activity Type Selection -->
+        <div>
+          <label class="text-xs font-semibold text-slate-300 block mb-1">Activity Type</label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            <button type="button" onclick="selectWorkoutType('Running')" class="workout-type-btn p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 font-medium hover:border-emerald-500 flex items-center gap-1.5 active-workout-type">
+              🏃 Running
+            </button>
+            <button type="button" onclick="selectWorkoutType('Gym/Strength')" class="workout-type-btn p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 font-medium hover:border-emerald-500 flex items-center gap-1.5">
+              🏋️ Gym / Lifting
+            </button>
+            <button type="button" onclick="selectWorkoutType('Badminton/Sports')" class="workout-type-btn p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 font-medium hover:border-emerald-500 flex items-center gap-1.5">
+              🏸 Badminton/Sports
+            </button>
+            <button type="button" onclick="selectWorkoutType('Mobility/Drills')" class="workout-type-btn p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 font-medium hover:border-emerald-500 flex items-center gap-1.5">
+              🧘 Mobility/Drills
+            </button>
+          </div>
+          <input type="hidden" id="form-workout-type" value="Running">
+        </div>
+
+        <!-- Duration & Intensity -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-slate-300 block mb-1">Duration (minutes)</label>
+            <input type="number" id="form-workout-duration" min="1" max="600" value="30" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-300 block mb-1">Intensity</label>
+            <select id="form-workout-intensity" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+              <option value="Low">Low - Warmup / Recovery</option>
+              <option value="Med" selected>Medium - Steady State</option>
+              <option value="High">High - Maximum Effort / HIIT</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Estimated Calories & Key Metrics -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-slate-300 block mb-1">Calories Burned (kcal)</label>
+            <input type="number" id="form-workout-calories" min="0" max="5000" placeholder="e.g. 280" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-300 block mb-1">Distance / Heart Rate (optional)</label>
+            <input type="text" id="form-workout-metric" placeholder="e.g. 5.2 km or 145 bpm" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <!-- Sets & Reps / Routine Notes -->
+        <div>
+          <label class="text-xs font-semibold text-slate-300 block mb-1">Sets / Reps / Specific Drills Notes</label>
+          <textarea id="form-workout-notes" placeholder="e.g. 4x8 Barbell Squats @ 90kg, 3x12 Romanian Deadlifts, or 3 sets of rally drills..." class="w-full h-16 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-workout')" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/30 transition">
+            Save Workout
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- 2. Add Study Target Task Modal -->
+  <div id="modal-study-task" class="modal-backdrop fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+    <div class="modal-content bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="list-todo" class="w-5 h-5 text-indigo-400"></i> Add Study Target / Task
+        </h3>
+        <button onclick="closeModal('modal-study-task')" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="submitStudyTaskForm(event)" class="space-y-3.5">
+        <div>
+          <label class="text-xs font-semibold text-slate-300 block mb-1">Target Task / Syllabus Objective</label>
+          <input type="text" id="form-task-title" required placeholder="e.g. Complete Dynamic Programming module..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-slate-300 block mb-1">Subject</label>
+            <select id="form-task-subject" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+              <option value="Computer Science">Computer Science</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="System Design">System Design</option>
+              <option value="Reading & Research">Reading & Research</option>
+              <option value="General Study">General Study</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-300 block mb-1">Priority</label>
+            <select id="form-task-priority" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+              <option value="high">🔴 High Priority</option>
+              <option value="med" selected>🟡 Medium Priority</option>
+              <option value="low">🔵 Low Priority</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-study-task')" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/30 transition">
+            Save Target
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- 3. Manual Study Session Modal -->
+  <div id="modal-manual-study" class="modal-backdrop fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+    <div class="modal-content bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="book-open" class="w-5 h-5 text-indigo-400"></i> Log Study Session
+        </h3>
+        <button onclick="closeModal('modal-manual-study')" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="submitManualStudyForm(event)" class="space-y-3.5">
+        <div>
+          <label class="text-xs font-semibold text-slate-300 block mb-1">Subject / Domain</label>
+          <select id="form-study-subject" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+            <option value="Computer Science">Computer Science & Algorithms</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="System Design">System Design</option>
+            <option value="Reading & Research">Reading & Research</option>
+            <option value="Language Study">Language Study</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-slate-300 block mb-1">Duration (minutes)</label>
+            <input type="number" id="form-study-duration" min="5" max="600" value="45" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-slate-300 block mb-1">Technique</label>
+            <select id="form-study-technique" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+              <option value="Deep Work">Deep Flow</option>
+              <option value="Pomodoro">Pomodoro Interval</option>
+              <option value="Active Recall">Active Recall / Flashcards</option>
+              <option value="Problem Solving">Problem Solving / Coding</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-300 block mb-1">Session Objectives & Takeaways</label>
+          <textarea id="form-study-notes" placeholder="Key takeaways, formulas reviewed, questions solved..." class="w-full h-16 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('modal-manual-study')" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/30 transition">
+            Save Session
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Floating Toast Notification -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 pointer-events-none flex flex-col gap-2"></div>
+
+
+  <!-- ================= APPLICATION JAVASCRIPT LOGIC ================= -->
+  <script>
+    /* ==========================================================
+       FITSTUDY APPLICATION CORE ARCHITECTURE & STATE ENGINE
+       ========================================================== */
+
+    const STORAGE_KEY = 'fitstudy_habit_tracker_v1';
+
+    // State object
+    let appState = {
+      selectedDate: getFormattedDate(new Date()),
+      habits: [
+        { id: 'fit_workout', title: 'Daily Workout Session (Gym/Run/Sports)', category: 'fitness' },
+        { id: 'fit_stretch', title: 'Post-workout Stretch & Mobility', category: 'fitness' },
+        { id: 'study_focus', title: 'Complete 1+ Deep Work Focus Block', category: 'study' },
+        { id: 'study_review', title: 'Review Syllabus Notes & Formulas', category: 'study' },
+        { id: 'core_drill', title: 'Core Stability & Abs Routine', category: 'fitness' }
+      ],
+      customSubjects: [
+        'Computer Science', 'Mathematics', 'System Design', 'Reading & Research', 'Language Study', 'General Study'
+      ],
+      dailyLogs: {}, // Keyed by YYYY-MM-DD
+      settings: {
+        dailyFitnessGoalMin: 45,
+        dailyStudyGoalHours: 3.0,
+        soundEnabled: true
+      }
+    };
+
+    // Active View state
+    let activeTab = 'dashboard';
+    let currentWeekOffset = 0; // 0 = current week
+
+    // Stopwatch State
+    let stopwatch = {
+      running: false,
+      startTime: 0,
+      elapsedTime: 0,
+      intervalId: null,
+      laps: []
+    };
+
+    // Interval Timer State (HIIT)
+    let intervalTimer = {
+      running: false,
+      isWorkPhase: true,
+      currentRound: 1,
+      totalRounds: 5,
+      workSec: 45,
+      restSec: 15,
+      remainingSec: 45,
+      timerId: null
+    };
+
+    // Pomodoro Timer State
+    let pomodoro = {
+      running: false,
+      mode: 'work', // 'work' | 'break'
+      workDuration: 25 * 60,
+      breakDuration: 5 * 60,
+      remaining: 25 * 60,
+      activeSubject: 'Computer Science',
+      timerId: null,
+      title: 'Classic 25/5'
+    };
+
+    let studyTaskFilter = 'all';
+
+    /* ==========================================================
+       DATE HELPERS
+       ========================================================== */
+    function getFormattedDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function parseDateString(str) {
+      const parts = str.split('-');
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+
+    function getTodayString() {
+      return getFormattedDate(new Date());
+    }
+
+    function getDayNameShort(date) {
+      return date.toLocaleDateString('en-US', { weekday: 'short' });
+    }
+
+    function getMonthDayString(date) {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    /* ==========================================================
+       LOCAL PERSISTENCE ENGINE
+       ========================================================== */
+    function loadStateFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          appState = { ...appState, ...parsed };
+        } else {
+          // Initialize with rich sample data so user immediately sees interactive data!
+          seedInitialData();
+        }
+      } catch (e) {
+        console.error('Error loading state:', e);
+        seedInitialData();
+      }
+      
+      // Ensure selectedDate defaults to today
+      appState.selectedDate = getTodayString();
+    }
+
+    function saveStateToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (e) {
+        console.error('Error saving state:', e);
+      }
+    }
+
+    function getDailyLog(dateStr) {
+      if (!appState.dailyLogs[dateStr]) {
+        appState.dailyLogs[dateStr] = {
+          completedChecklist: [],
+          waterGlasses: 0,
+          fitnessSessions: [],
+          studySessions: [],
+          studyTasks: [],
+          dailyNotes: ''
+        };
+      }
+      return appState.dailyLogs[dateStr];
+    }
+
+    /* ==========================================================
+       SAMPLE / SEED DATA
+       ========================================================== */
+    function seedInitialData() {
+      const today = new Date();
+      
+      // Pre-fill last 4 days with realistic routine data
+      for (let i = 4; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const dateKey = getFormattedDate(d);
+        
+        const isToday = (i === 0);
+        
+        appState.dailyLogs[dateKey] = {
+          completedChecklist: isToday ? ['fit_workout', 'fit_stretch'] : ['fit_workout', 'fit_stretch', 'study_focus', 'study_review', 'core_drill'],
+          waterGlasses: isToday ? 5 : 8,
+          fitnessSessions: [
+            {
+              id: 'fs_' + dateKey + '_1',
+              type: i % 2 === 0 ? 'Gym/Strength' : 'Running',
+              duration: i % 2 === 0 ? 55 : 35,
+              intensity: 'High',
+              calories: i % 2 === 0 ? 420 : 340,
+              metrics: i % 2 === 0 ? 'Bench 4x8 @ 80kg, Squats 4x10' : '5.4 km @ 5:12 min/km',
+              notes: i % 2 === 0 ? 'Heavy chest & triceps focus with good pump.' : 'Morning outdoor aerobic run with strides.',
+              timestamp: new Date().toISOString()
+            }
+          ],
+          studySessions: [
+            {
+              id: 'ss_' + dateKey + '_1',
+              subject: 'Computer Science',
+              duration: 50,
+              technique: 'Deep Work',
+              notes: 'Graph search algorithms, BFS/DFS tree traversal, and memory space complexity.',
+              timestamp: new Date().toISOString()
+            },
+            {
+              id: 'ss_' + dateKey + '_2',
+              subject: 'System Design',
+              duration: 50,
+              technique: 'Pomodoro',
+              notes: 'Caching layers, Redis cluster replication, and consistent hashing.',
+              timestamp: new Date().toISOString()
+            }
+          ],
+          studyTasks: [
+            {
+              id: 'st_' + dateKey + '_1',
+              title: 'Solve 3 Hard Graph LeetCode Questions',
+              subject: 'Computer Science',
+              priority: 'high',
+              completed: !isToday
+            },
+            {
+              id: 'st_' + dateKey + '_2',
+              title: 'Read Microservices Event Driven Architecture Chapter',
+              subject: 'System Design',
+              priority: 'med',
+              completed: true
+            }
+          ],
+          dailyNotes: 'High energy day! Morning routine helped sharp focus during study blocks.'
+        };
+      }
+      saveStateToStorage();
+    }
+
+    /* ==========================================================
+       SYNTHESIZED AUDIO CHIME SYSTEM (WEB AUDIO API)
+       ========================================================== */
+    function playChime(type = 'success') {
+      if (!appState.settings.soundEnabled) return;
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        if (ctx.state === 'suspended') ctx.resume();
+        const now = ctx.currentTime;
+
+        if (type === 'work_end' || type === 'success') {
+          // Harmonious celebratory chime: C5, E5, G5, C6
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0, now + i * 0.12);
+            gain.gain.linearRampToValueAtTime(0.2, now + i * 0.12 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.12 + 0.85);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + i * 0.12);
+            osc.stop(now + i * 0.12 + 0.9);
+          });
+        } else if (type === 'beep') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = 880;
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'break_end') {
+          // 2-tone alert
+          [784, 523.25].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.18, now + i * 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.4);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + i * 0.15);
+            osc.stop(now + i * 0.15 + 0.45);
+          });
+        }
+
+        // Native Android / mobile vibration integration
+        if (window.Android && window.Android.vibrate) {
+          window.Android.vibrate(300);
+        } else if (navigator.vibrate) {
+          navigator.vibrate(200);
+        }
+      } catch (err) {
+        console.warn('Audio playback not supported:', err);
+      }
+    }
+
+    /* ==========================================================
+       STREAK ENGINE & ANALYTICS CALCULATOR
+       ========================================================== */
+    function calculateStreaks() {
+      const dates = Object.keys(appState.dailyLogs).sort();
+      if (dates.length === 0) {
+        return {
+          fitCurrent: 0, fitBest: 0,
+          studyCurrent: 0, studyBest: 0,
+          perfectCurrent: 0, perfectBest: 0
+        };
+      }
+
+      // Helper to evaluate if day meets fitness & study criteria
+      function isDayFitnessDone(dateStr) {
+        const log = appState.dailyLogs[dateStr];
+        if (!log) return false;
+        const totalMin = log.fitnessSessions.reduce((acc, s) => acc + (Number(s.duration) || 0), 0);
+        const checklistDone = log.completedChecklist && log.completedChecklist.length >= 2;
+        return totalMin >= 30 || checklistDone;
+      }
+
+      function isDayStudyDone(dateStr) {
+        const log = appState.dailyLogs[dateStr];
+        if (!log) return false;
+        const totalMin = log.studySessions.reduce((acc, s) => acc + (Number(s.duration) || 0), 0);
+        return totalMin >= 40;
+      }
+
+      function isDayPerfect(dateStr) {
+        return isDayFitnessDone(dateStr) && isDayStudyDone(dateStr);
+      }
+
+      // Calculate consecutive streaks backwards from today or yesterday
+      function computeStreakSeries(checkFn) {
+        let currentStreak = 0;
+        let bestStreak = 0;
+        let tempStreak = 0;
+
+        const todayStr = getTodayString();
+        let checkDate = parseDateString(todayStr);
+
+        // Check today first
+        if (checkFn(todayStr)) {
+          currentStreak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          // If not completed today yet, check if yesterday was done to preserve active streak
+          checkDate.setDate(checkDate.getDate() - 1);
+        }
+
+        // Walk backwards day-by-day
+        while (true) {
+          const ds = getFormattedDate(checkDate);
+          if (checkFn(ds)) {
+            currentStreak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+          } else {
+            break;
+          }
+        }
+
+        // Calculate all-time best streak
+        // Sort dates chronologically
+        const daySet = new Set(dates.filter(d => checkFn(d)));
+        if (daySet.size === 0) return { current: 0, best: 0 };
+
+        const allDates = Array.from(daySet).sort();
+        let longest = 1;
+        let curr = 1;
+
+        for (let i = 1; i < allDates.length; i++) {
+          const prev = parseDateString(allDates[i - 1]);
+          const next = parseDateString(allDates[i]);
+          const diffDays = Math.round((next - prev) / (1000 * 60 * 60 * 24));
+
+          if (diffDays === 1) {
+            curr++;
+            if (curr > longest) longest = curr;
+          } else if (diffDays > 1) {
+            curr = 1;
+          }
+        }
+
+        return {
+          current: currentStreak,
+          best: Math.max(currentStreak, longest)
+        };
+      }
+
+      const fitStreaks = computeStreakSeries(isDayFitnessDone);
+      const studyStreaks = computeStreakSeries(isDayStudyDone);
+      const perfectStreaks = computeStreakSeries(isDayPerfect);
+
+      return {
+        fitCurrent: fitStreaks.current,
+        fitBest: fitStreaks.best,
+        studyCurrent: studyStreaks.current,
+        studyBest: studyStreaks.best,
+        perfectCurrent: perfectStreaks.current,
+        perfectBest: perfectStreaks.best
+      };
+    }
+
+    /* ==========================================================
+       DATE NAVIGATION & WEEK STRIP
+       ========================================================== */
+    function renderWeekStrip() {
+      const container = document.getElementById('week-days-container');
+      container.innerHTML = '';
+
+      // Determine Sunday/Monday of the selected week offset
+      const baseDate = new Date();
+      baseDate.setDate(baseDate.getDate() + (currentWeekOffset * 7));
+
+      // Calculate start of week (Monday)
+      const dayOfWeek = baseDate.getDay(); // 0 is Sunday
+      const diffToMonday = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
+      const monday = new Date(baseDate);
+      monday.setDate(baseDate.getDate() + diffToMonday);
+
+      const todayStr = getTodayString();
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+
+      // Label
+      document.getElementById('week-range-label').textContent = 
+        `${getMonthDayString(monday)} - ${getMonthDayString(sunday)}`;
+
+      // Update date banner
+      const banner = document.getElementById('date-status-banner');
+      if (appState.selectedDate === todayStr) {
+        banner.className = 'flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+        banner.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span><span>Today\'s Active View</span>';
+      } else if (appState.selectedDate < todayStr) {
+        banner.className = 'flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700';
+        banner.innerHTML = `<span>📜 History (${appState.selectedDate})</span>`;
+      } else {
+        banner.className = 'flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20';
+        banner.innerHTML = `<span>🗓️ Planned Target (${appState.selectedDate})</span>`;
+      }
+
+      // Render 7 day buttons
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const dStr = getFormattedDate(d);
+        const isSelected = (dStr === appState.selectedDate);
+        const isToday = (dStr === todayStr);
+
+        const log = appState.dailyLogs[dStr];
+        const fitDone = log && log.fitnessSessions && log.fitnessSessions.length > 0;
+        const studyDone = log && log.studySessions && log.studySessions.length > 0;
+        const bothDone = fitDone && studyDone;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => selectDate(dStr);
+        btn.className = `flex flex-col items-center justify-center p-2 rounded-xl transition cursor-pointer min-w-[42px] relative ${
+          isSelected 
+            ? 'bg-gradient-to-b from-slate-700 to-slate-800 border-2 border-emerald-400 text-white shadow-lg' 
+            : 'bg-slate-900/80 hover:bg-slate-800/80 text-slate-400 border border-slate-800/80'
+        } ${isToday && !isSelected ? 'ring-1 ring-emerald-500/50' : ''}`;
+
+        btn.innerHTML = `
+          <span class="text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'text-emerald-400' : 'text-slate-400'}">${getDayNameShort(d)}</span>
+          <span class="text-sm font-extrabold ${isSelected ? 'text-white' : 'text-slate-200'} mt-0.5">${d.getDate()}</span>
+          <!-- Activity Indicators -->
+          <div class="flex items-center gap-1 mt-1 h-1.5">
+            ${bothDone ? '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>' : `
+              ${fitDone ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>' : ''}
+              ${studyDone ? '<span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>' : ''}
+            `}
+          </div>
+        `;
+        container.appendChild(btn);
+      }
+    }
+
+    function selectDate(dateStr) {
+      appState.selectedDate = dateStr;
+      saveStateToStorage();
+      renderAllViews();
+    }
+
+    function changeWeek(delta) {
+      currentWeekOffset += delta;
+      renderWeekStrip();
+    }
+
+    function jumpToToday() {
+      currentWeekOffset = 0;
+      appState.selectedDate = getTodayString();
+      saveStateToStorage();
+      renderAllViews();
+      showToast('Switched to Today');
+    }
+
+    /* ==========================================================
+       TAB SWITCHER
+       ========================================================== */
+    function switchTab(tabId) {
+      activeTab = tabId;
+      
+      // Toggle Desktop navigation
+      ['dashboard', 'fitness', 'study', 'analytics'].forEach(t => {
+        const desktopTab = document.getElementById(`nav-tab-${t}`);
+        const mobileTab = document.getElementById(`mob-tab-${t}`);
+        const view = document.getElementById(`view-${t}`);
+
+        if (desktopTab) {
+          if (t === tabId) {
+            desktopTab.className = 'nav-tab flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 border-emerald-400 text-emerald-400 transition';
+          } else {
+            desktopTab.className = 'nav-tab flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition';
+          }
+        }
+
+        if (mobileTab) {
+          if (t === tabId) {
+            mobileTab.className = 'flex flex-col items-center gap-1 text-emerald-400 py-1 px-3 rounded-xl transition';
+          } else {
+            mobileTab.className = 'flex flex-col items-center gap-1 text-slate-400 py-1 px-3 rounded-xl transition';
+          }
+        }
+
+        if (view) {
+          if (t === tabId) {
+            view.classList.remove('hidden');
+          } else {
+            view.classList.add('hidden');
+          }
+        }
+      });
+
+      renderAllViews();
+      lucide.createIcons();
+    }
+
+    /* ==========================================================
+       RENDER FUNCTIONS FOR ALL MODULES
+       ========================================================== */
+    function renderAllViews() {
+      renderWeekStrip();
+      renderHeaderBadges();
+      renderDashboardView();
+      renderFitnessView();
+      renderStudyView();
+      renderAnalyticsView();
+      lucide.createIcons();
+    }
+
+    function renderHeaderBadges() {
+      const streaks = calculateStreaks();
+      document.getElementById('header-fit-streak').textContent = streaks.fitCurrent;
+      document.getElementById('header-study-streak').textContent = streaks.studyCurrent;
+      document.getElementById('header-perfect-streak').textContent = streaks.perfectCurrent;
+    }
+
+    /* --- 1. DASHBOARD RENDERER --- */
+    function renderDashboardView() {
+      const log = getDailyLog(appState.selectedDate);
+
+      // Fitness calculation
+      const fitMin = log.fitnessSessions.reduce((acc, s) => acc + (Number(s.duration) || 0), 0);
+      const fitGoal = appState.settings.dailyFitnessGoalMin;
+      const fitPercent = Math.min(100, Math.round((fitMin / fitGoal) * 100));
+
+      // Study calculation
+      const studyMin = log.studySessions.reduce((acc, s) => acc + (Number(s.duration) || 0), 0);
+      const studyHours = (studyMin / 60).toFixed(1);
+      const studyGoal = appState.settings.dailyStudyGoalHours;
+      const studyPercent = Math.min(100, Math.round(((studyMin / 60) / studyGoal) * 100));
+
+      // Combined Progress
+      const combinedPercent = Math.round((fitPercent + studyPercent) / 2);
+      
+      // Update SVG Circular Ring
+      const circle = document.getElementById('daily-progress-circle');
+      const circumference = 314.159; // 2 * PI * 50
+      const offset = circumference - (combinedPercent / 100) * circumference;
+      circle.style.strokeDashoffset = offset;
+      document.getElementById('daily-progress-percent').textContent = `${combinedPercent}%`;
+
+      // Goal texts and bars
+      document.getElementById('dash-fit-goal-text').textContent = `${fitMin} / ${fitGoal}m`;
+      document.getElementById('dash-fit-bar').style.width = `${fitPercent}%`;
+
+      document.getElementById('dash-study-goal-text').textContent = `${studyHours} / ${studyGoal.toFixed(1)}h`;
+      document.getElementById('dash-study-bar').style.width = `${studyPercent}%`;
+
+      // Status text
+      const statusEl = document.getElementById('dash-perfect-status');
+      if (fitMin >= fitGoal && (studyMin / 60) >= studyGoal) {
+        statusEl.innerHTML = '<span class="text-amber-400 font-bold flex items-center gap-1">🌟 Perfect Day achieved! Both goals crushed!</span>';
+      } else if (fitMin >= fitGoal) {
+        statusEl.innerHTML = '<span class="text-emerald-400 font-semibold">✓ Fitness Goal met! Focus on study now.</span>';
+      } else if ((studyMin / 60) >= studyGoal) {
+        statusEl.innerHTML = '<span class="text-indigo-400 font-semibold">✓ Study Goal met! Get moving for fitness!</span>';
+      } else {
+        statusEl.textContent = '⚪ Complete both routines to score a Perfect Day';
+      }
+
+      // Update Tab Badges
+      const fitBadge = document.getElementById('tab-fit-badge');
+      if (fitBadge) fitBadge.textContent = `${fitMin}m`;
+      const studyBadge = document.getElementById('tab-study-badge');
+      if (studyBadge) studyBadge.textContent = `${studyHours}h`;
+
+      // Render Checklist
+      renderDailyChecklist(log);
+
+      // Render Hydration
+      document.getElementById('water-count-val').textContent = log.waterGlasses || 0;
+
+      // Render Activity Stream
+      renderDashboardActivity(log);
+
+      // Daily notes
+      const notesInput = document.getElementById('daily-notes-input');
+      notesInput.value = log.dailyNotes || '';
+    }
+
+    function renderDailyChecklist(log) {
+      const container = document.getElementById('daily-checklist-container');
+      container.innerHTML = '';
+
+      const completedSet = new Set(log.completedChecklist || []);
+      const total = appState.habits.length;
+      const done = completedSet.size;
+
+      document.getElementById('checklist-counter').textContent = `${done}/${total} Done`;
+
+      appState.habits.forEach(habit => {
+        const isDone = completedSet.has(habit.id);
+        const item = document.createElement('div');
+        item.className = `flex items-center justify-between p-2.5 rounded-xl border transition ${
+          isDone ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-200' : 'bg-slate-800/40 border-slate-700/60 text-slate-300'
+        }`;
+
+        item.innerHTML = `
+          <label class="flex items-center gap-3 cursor-pointer flex-1">
+            <input type="checkbox" onchange="toggleChecklistItem('${habit.id}', this.checked)" ${isDone ? 'checked' : ''} 
+                   class="w-4 h-4 rounded text-emerald-600 focus:ring-0 bg-slate-900 border-slate-700">
+            <span class="text-xs font-medium ${isDone ? 'line-through text-slate-400' : ''}">${habit.title}</span>
+          </label>
+          <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold ${
+            habit.category === 'fitness' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-indigo-500/10 text-indigo-400'
+          }">${habit.category}</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function toggleChecklistItem(habitId, isChecked) {
+      const log = getDailyLog(appState.selectedDate);
+      if (!log.completedChecklist) log.completedChecklist = [];
+
+      if (isChecked) {
+        if (!log.completedChecklist.includes(habitId)) {
+          log.completedChecklist.push(habitId);
+          playChime('beep');
+        }
+      } else {
+        log.completedChecklist = log.completedChecklist.filter(id => id !== habitId);
+      }
+
+      saveStateToStorage();
+      renderDashboardView();
+      renderHeaderBadges();
+    }
+
+    function updateWater(delta) {
+      const log = getDailyLog(appState.selectedDate);
+      log.waterGlasses = Math.max(0, Math.min(16, (log.waterGlasses || 0) + delta));
+      saveStateToStorage();
+      document.getElementById('water-count-val').textContent = log.waterGlasses;
+      if (delta > 0 && log.waterGlasses >= 8) {
+        showToast('Hydration target reached! 💧');
+        playChime('success');
+      }
+    }
+
+    function addCustomChecklistItem(e) {
+      e.preventDefault();
+      const input = document.getElementById('input-new-habit');
+      const val = input.value.trim();
+      if (!val) return;
+
+      const newId = 'habit_' + Date.now();
+      appState.habits.push({
+        id: newId,
+        title: val,
+        category: 'fitness'
+      });
+
+      input.value = '';
+      saveStateToStorage();
+      renderDashboardView();
+      showToast('Custom habit added');
+    }
+
+    function renderDashboardActivity(log) {
+      const stream = document.getElementById('dash-activity-stream');
+      stream.innerHTML = '';
+
+      const fitSessions = log.fitnessSessions || [];
+      const studySessions = log.studySessions || [];
+      const totalSessions = fitSessions.length + studySessions.length;
+
+      document.getElementById('dash-total-sessions-badge').textContent = `${totalSessions} sessions logged`;
+
+      if (totalSessions === 0) {
+        stream.innerHTML = `
+          <div class="text-center py-8 text-slate-500 text-xs">
+            <i data-lucide="sun" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
+            <p>No activity logged for this date yet.</p>
+            <p class="text-[11px] text-slate-600 mt-1">Start a Pomodoro or log your workout session above!</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Merge and render sessions
+      fitSessions.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'p-3 rounded-xl bg-slate-800/60 border border-emerald-500/20 flex items-center justify-between gap-3 text-xs';
+        div.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+              🏋️
+            </div>
+            <div>
+              <div class="font-bold text-white">${s.type} <span class="font-normal text-slate-400">(${s.duration} min)</span></div>
+              <div class="text-[11px] text-slate-400">${s.metrics || s.notes || 'Workout completed'}</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-400">${s.intensity}</span>
+            ${s.calories ? `<div class="text-[10px] text-slate-400 font-mono mt-0.5">${s.calories} kcal</div>` : ''}
+          </div>
+        `;
+        stream.appendChild(div);
+      });
+
+      studySessions.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'p-3 rounded-xl bg-slate-800/60 border border-indigo-500/20 flex items-center justify-between gap-3 text-xs';
+        div.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold">
+              📚
+            </div>
+            <div>
+              <div class="font-bold text-white">${s.subject} <span class="font-normal text-slate-400">(${s.duration} min)</span></div>
+              <div class="text-[11px] text-slate-400">${s.notes || s.technique || 'Deep Work Focus'}</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/20 text-indigo-400">${s.technique || 'Focus'}</span>
+          </div>
+        `;
+        stream.appendChild(div);
+      });
+    }
+
+    let notesDebounceTimer;
+    function saveDailyNotesDebounced() {
+      clearTimeout(notesDebounceTimer);
+      notesDebounceTimer = setTimeout(() => {
+        const log = getDailyLog(appState.selectedDate);
+        log.dailyNotes = document.getElementById('daily-notes-input').value;
+        saveStateToStorage();
+        
+        const ind = document.getElementById('note-saved-indicator');
+        ind.style.opacity = '1';
+        setTimeout(() => ind.style.opacity = '0', 1500);
+      }, 500);
+    }
+
+    /* --- 2. FITNESS MODULE RENDERER --- */
+    function renderFitnessView() {
+      const log = getDailyLog(appState.selectedDate);
+      const sessions = log.fitnessSessions || [];
+
+      const totalDuration = sessions.reduce((acc, s) => acc + (Number(s.duration) || 0), 0);
+      const totalCalories = sessions.reduce((acc, s) => acc + (Number(s.calories) || 0), 0);
+
+      document.getElementById('fit-stat-duration').innerHTML = `${totalDuration} <span class="text-xs font-normal text-slate-400">min</span>`;
+      document.getElementById('fit-stat-calories').innerHTML = `${totalCalories} <span class="text-xs font-normal text-slate-400">kcal</span>`;
+      document.getElementById('fit-stat-count').innerHTML = `${sessions.length} <span class="text-xs font-normal text-slate-400">sessions</span>`;
+
+      const streaks = calculateStreaks();
+      document.getElementById('fit-stat-streak').innerHTML = `${streaks.fitCurrent} <span class="text-xs font-normal text-slate-400">days</span>`;
+      document.getElementById('fit-stat-best-streak').textContent = streaks.fitBest;
+
+      // Render Sessions List
+      const container = document.getElementById('fitness-sessions-list');
+      container.innerHTML = '';
+
+      if (sessions.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-10 text-slate-500 text-xs border border-dashed border-slate-800 rounded-xl">
+            <i data-lucide="dumbbell" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
+            <p>No workout sessions logged for ${appState.selectedDate}.</p>
+            <button onclick="openWorkoutModal()" class="mt-3 text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-1.5 px-3 rounded-lg">
+              + Log Workout Now
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      sessions.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'glass-panel rounded-xl p-4 border-slate-800/80 hover:border-emerald-500/40 transition space-y-2 text-xs';
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <h4 class="font-extrabold text-white text-sm">${s.type}</h4>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${
+                s.intensity === 'High' ? 'bg-rose-500/20 text-rose-300' : s.intensity === 'Med' ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'
+              }">${s.intensity} Intensity</span>
+            </div>
+            <button onclick="deleteWorkoutSession('${s.id}')" class="text-slate-500 hover:text-rose-400 p-1 transition" title="Delete">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-4 text-slate-300 pt-1">
+            <span class="flex items-center gap-1 font-mono"><i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-400"></i> ${s.duration} min</span>
+            ${s.calories ? `<span class="flex items-center gap-1 font-mono"><i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i> ${s.calories} kcal</span>` : ''}
+            ${s.metrics ? `<span class="flex items-center gap-1 text-slate-300"><i data-lucide="activity" class="w-3.5 h-3.5 text-sky-400"></i> ${s.metrics}</span>` : ''}
+          </div>
+
+          ${s.notes ? `<p class="text-slate-400 text-[11px] pt-1 border-t border-slate-800">${s.notes}</p>` : ''}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function deleteWorkoutSession(id) {
+      const log = getDailyLog(appState.selectedDate);
+      log.fitnessSessions = log.fitnessSessions.filter(s => s.id !== id);
+      saveStateToStorage();
+      renderAllViews();
+      showToast('Workout session removed');
+    }
+
+    /* --- STOPWATCH TOOL LOGIC --- */
+    function setTimerToolMode(mode) {
+      const swBtn = document.getElementById('btn-mode-stopwatch');
+      const ivBtn = document.getElementById('btn-mode-interval');
+      const swContainer = document.getElementById('tool-stopwatch-container');
+      const ivContainer = document.getElementById('tool-interval-container');
+
+      if (mode === 'stopwatch') {
+        swBtn.className = 'px-2.5 py-1 rounded-md bg-emerald-600 text-white transition';
+        ivBtn.className = 'px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200 transition';
+        swContainer.classList.remove('hidden');
+        ivContainer.classList.add('hidden');
+      } else {
+        ivBtn.className = 'px-2.5 py-1 rounded-md bg-emerald-600 text-white transition';
+        swBtn.className = 'px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200 transition';
+        ivContainer.classList.remove('hidden');
+        swContainer.classList.add('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    function toggleStopwatch() {
+      const btn = document.getElementById('btn-stopwatch-start');
+      if (!stopwatch.running) {
+        stopwatch.running = true;
+        stopwatch.startTime = performance.now() - stopwatch.elapsedTime;
+        stopwatch.intervalId = setInterval(updateStopwatchUI, 25);
+        btn.innerHTML = '<i data-lucide="pause" class="w-4 h-4 fill-white"></i> Pause';
+        btn.className = 'px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-amber-600/30 transition';
+        document.getElementById('stopwatch-save-row').classList.remove('hidden');
+      } else {
+        stopwatch.running = false;
+        clearInterval(stopwatch.intervalId);
+        btn.innerHTML = '<i data-lucide="play" class="w-4 h-4 fill-white"></i> Resume';
+        btn.className = 'px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition';
+      }
+      lucide.createIcons();
+    }
+
+    function updateStopwatchUI() {
+      stopwatch.elapsedTime = performance.now() - stopwatch.startTime;
+      const totalMs = Math.floor(stopwatch.elapsedTime);
+      const minutes = Math.floor(totalMs / 60000);
+      const seconds = Math.floor((totalMs % 60000) / 1000);
+      const ms = Math.floor((totalMs % 1000) / 10);
+
+      document.getElementById('stopwatch-display').textContent = 
+        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(ms).padStart(2, '0')}`;
+    }
+
+    function lapStopwatch() {
+      if (stopwatch.elapsedTime === 0) return;
+      const lapsList = document.getElementById('stopwatch-laps-container');
+      const lapTime = document.getElementById('stopwatch-display').textContent;
+      stopwatch.laps.unshift(lapTime);
+
+      const div = document.createElement('div');
+      div.className = 'flex justify-between py-1 border-b border-slate-800';
+      div.innerHTML = `<span>Lap ${stopwatch.laps.length}</span><span class="text-emerald-400">${lapTime}</span>`;
+      lapsList.prepend(div);
+      playChime('beep');
+    }
+
+    function resetStopwatch() {
+      stopwatch.running = false;
+      clearInterval(stopwatch.intervalId);
+      stopwatch.elapsedTime = 0;
+      stopwatch.laps = [];
+      document.getElementById('stopwatch-display').textContent = '00:00.00';
+      document.getElementById('stopwatch-laps-container').innerHTML = '';
+      document.getElementById('stopwatch-save-row').classList.add('hidden');
+      
+      const btn = document.getElementById('btn-stopwatch-start');
+      btn.innerHTML = '<i data-lucide="play" class="w-4 h-4 fill-white"></i> Start';
+      btn.className = 'px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition';
+      lucide.createIcons();
+    }
+
+    function saveStopwatchAsWorkout() {
+      const minutes = Math.max(1, Math.round(stopwatch.elapsedTime / 60000));
+      openWorkoutModal();
+      document.getElementById('form-workout-duration').value = minutes;
+      document.getElementById('form-workout-notes').value = `Timed with built-in stopwatch: ${document.getElementById('stopwatch-display').textContent}`;
+    }
+
+    /* --- INTERVAL TIMER (HIIT) LOGIC --- */
+    function toggleIntervalTimer() {
+      const btn = document.getElementById('btn-interval-start');
+      if (!intervalTimer.running) {
+        // Read input configuration
+        intervalTimer.workSec = parseInt(document.getElementById('input-interval-work').value) || 45;
+        intervalTimer.restSec = parseInt(document.getElementById('input-interval-rest').value) || 15;
+        intervalTimer.totalRounds = parseInt(document.getElementById('input-interval-rounds').value) || 5;
+
+        intervalTimer.running = true;
+        btn.innerHTML = '<i data-lucide="pause" class="w-4 h-4 fill-white"></i> Pause';
+        btn.className = 'px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 transition';
+        document.getElementById('interval-settings-inputs').classList.add('opacity-50', 'pointer-events-none');
+
+        intervalTimer.timerId = setInterval(tickIntervalTimer, 1000);
+        playChime('beep');
+      } else {
+        intervalTimer.running = false;
+        clearInterval(intervalTimer.timerId);
+        btn.innerHTML = '<i data-lucide="play" class="w-4 h-4 fill-white"></i> Resume';
+        btn.className = 'px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 transition';
+      }
+      lucide.createIcons();
+    }
+
+    function tickIntervalTimer() {
+      intervalTimer.remainingSec--;
+
+      if (intervalTimer.remainingSec <= 3 && intervalTimer.remainingSec > 0) {
+        playChime('beep');
+      }
+
+      if (intervalTimer.remainingSec < 0) {
+        if (intervalTimer.isWorkPhase) {
+          // Switch to Rest
+          intervalTimer.isWorkPhase = false;
+          intervalTimer.remainingSec = intervalTimer.restSec;
+          playChime('break_end');
+        } else {
+          // Finished Rest round
+          if (intervalTimer.currentRound >= intervalTimer.totalRounds) {
+            // Completed all rounds!
+            finishIntervalRoutine();
+            return;
+          }
+          intervalTimer.currentRound++;
+          intervalTimer.isWorkPhase = true;
+          intervalTimer.remainingSec = intervalTimer.workSec;
+          playChime('work_end');
+        }
+      }
+
+      updateIntervalDisplay();
+    }
+
+    function updateIntervalDisplay() {
+      const screen = document.getElementById('interval-screen');
+      const badge = document.getElementById('interval-status-badge');
+      const timerDisplay = document.getElementById('interval-timer-display');
+
+      const sec = intervalTimer.remainingSec;
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      timerDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+      document.getElementById('interval-current-round').textContent = intervalTimer.currentRound;
+      document.getElementById('interval-total-rounds').textContent = intervalTimer.totalRounds;
+
+      if (intervalTimer.isWorkPhase) {
+        badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 uppercase tracking-wider mb-1';
+        badge.textContent = '🔥 WORK INTERVAL';
+        timerDisplay.className = 'font-mono text-5xl font-black text-emerald-400';
+        screen.className = 'py-6 bg-emerald-950/20 rounded-2xl border border-emerald-500/40 transition-colors';
+      } else {
+        badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400 uppercase tracking-wider mb-1';
+        badge.textContent = '☕ REST PERIOD';
+        timerDisplay.className = 'font-mono text-5xl font-black text-amber-400';
+        screen.className = 'py-6 bg-amber-950/20 rounded-2xl border border-amber-500/40 transition-colors';
+      }
+    }
+
+    function finishIntervalRoutine() {
+      clearInterval(intervalTimer.timerId);
+      intervalTimer.running = false;
+      playChime('success');
+      showToast('🎉 HIIT Interval routine complete!');
+
+      const totalMinutes = Math.max(5, Math.round((intervalTimer.totalRounds * (intervalTimer.workSec + intervalTimer.restSec)) / 60));
+      
+      // Auto-log to fitness!
+      const log = getDailyLog(appState.selectedDate);
+      log.fitnessSessions.push({
+        id: 'fs_' + Date.now(),
+        type: 'HIIT / Interval Training',
+        duration: totalMinutes,
+        intensity: 'High',
+        calories: totalMinutes * 10,
+        metrics: `${intervalTimer.totalRounds} Rounds (${intervalTimer.workSec}s work / ${intervalTimer.restSec}s rest)`,
+        notes: 'Completed with built-in interval timer.',
+        timestamp: new Date().toISOString()
+      });
+
+      saveStateToStorage();
+      resetIntervalTimer();
+      renderAllViews();
+    }
+
+    function resetIntervalTimer() {
+      clearInterval(intervalTimer.timerId);
+      intervalTimer.running = false;
+      intervalTimer.isWorkPhase = true;
+      intervalTimer.currentRound = 1;
+      intervalTimer.workSec = parseInt(document.getElementById('input-interval-work').value) || 45;
+      intervalTimer.remainingSec = intervalTimer.workSec;
+      
+      const btn = document.getElementById('btn-interval-start');
+      btn.innerHTML = '<i data-lucide="play" class="w-4 h-4 fill-white"></i> Start Routine';
+      btn.className = 'px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition';
+      document.getElementById('interval-settings-inputs').classList.remove('opacity-50', 'pointer-events-none');
+
+      updateIntervalDisplay();
+      lucide.createIcons();
+    }
+
+    function toggleFitnessSubCheck(type, isChecked) {
+      if (isChecked) playChime('beep');
+    }
+
+    /* --- 3. STUDY MODULE RENDERER --- */
+    function renderStudyView() {
+      const log = getDailyLog(appState.selectedDate);
+      const sessions = log.studySessions || [];
+      const tasks = log.studyTasks || [];
+
+      const totalMinutes = sessions.reduce((acc, s) => acc + (Number(s.duration) || 0), 0);
+      const totalHours = (totalMinutes / 60).toFixed(1);
+
+      // Unique subjects studied today
+      const uniqueSubjects = new Set(sessions.map(s => s.subject));
+
+      document.getElementById('study-stat-hours').innerHTML = `${totalHours} <span class="text-xs font-normal text-slate-400">hrs</span>`;
+      document.getElementById('study-stat-sessions').innerHTML = `${sessions.length} <span class="text-xs font-normal text-slate-400">sessions</span>`;
+      document.getElementById('study-stat-subjects-count').innerHTML = `${uniqueSubjects.size} <span class="text-xs font-normal text-slate-400">topics</span>`;
+
+      const streaks = calculateStreaks();
+      document.getElementById('study-stat-streak').innerHTML = `${streaks.studyCurrent} <span class="text-xs font-normal text-slate-400">days</span>`;
+      document.getElementById('study-stat-best-streak').textContent = streaks.studyBest;
+
+      // Render Subject Breakdown
+      renderSubjectBreakdown(sessions);
+
+      // Render Study Tasks
+      renderStudyTasks(tasks);
+
+      // Render Study Sessions Log
+      renderStudySessions(sessions);
+    }
+
+    function renderSubjectBreakdown(sessions) {
+      const container = document.getElementById('study-subject-breakdown-list');
+      container.innerHTML = '';
+
+      if (sessions.length === 0) {
+        container.innerHTML = '<div class="text-slate-500 text-xs py-2">No subject study time recorded yet today.</div>';
+        return;
+      }
+
+      const subjectMinutes = {};
+      let maxMin = 1;
+      sessions.forEach(s => {
+        const m = Number(s.duration) || 0;
+        subjectMinutes[s.subject] = (subjectMinutes[s.subject] || 0) + m;
+        if (subjectMinutes[s.subject] > maxMin) maxMin = subjectMinutes[s.subject];
+      });
+
+      Object.entries(subjectMinutes).forEach(([subj, min]) => {
+        const percent = Math.min(100, Math.round((min / maxMin) * 100));
+        const item = document.createElement('div');
+        item.className = 'space-y-1 text-xs';
+        item.innerHTML = `
+          <div class="flex items-center justify-between font-medium">
+            <span class="text-slate-200">${subj}</span>
+            <span class="text-indigo-400 font-mono font-bold">${min} min</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-500 to-violet-400 h-1.5 rounded-full" style="width: ${percent}%"></div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function renderStudyTasks(tasks) {
+      const container = document.getElementById('study-tasks-list');
+      container.innerHTML = '';
+
+      let filtered = tasks;
+      if (studyTaskFilter === 'active') {
+        filtered = tasks.filter(t => !t.completed);
+      } else if (studyTaskFilter === 'completed') {
+        filtered = tasks.filter(t => t.completed);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-slate-500 text-xs py-4 text-center">No syllabus target tasks matching filter.</div>';
+        return;
+      }
+
+      filtered.forEach(task => {
+        const item = document.createElement('div');
+        item.className = `flex items-center justify-between p-2.5 rounded-xl border transition ${
+          task.completed ? 'bg-slate-900/40 border-slate-800/80 text-slate-400' : 'bg-slate-800/60 border-slate-700/80 text-slate-200'
+        }`;
+
+        const priorityBadge = task.priority === 'high' 
+          ? '<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-rose-500/20 text-rose-300">High</span>'
+          : task.priority === 'med'
+          ? '<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-amber-500/20 text-amber-300">Med</span>'
+          : '<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-blue-500/20 text-blue-300">Low</span>';
+
+        item.innerHTML = `
+          <label class="flex items-center gap-2.5 cursor-pointer flex-1">
+            <input type="checkbox" onchange="toggleStudyTask('${task.id}', this.checked)" ${task.completed ? 'checked' : ''} 
+                   class="w-4 h-4 rounded text-indigo-600 focus:ring-0 bg-slate-900 border-slate-700">
+            <div>
+              <span class="text-xs font-semibold ${task.completed ? 'line-through text-slate-500' : 'text-slate-200'}">${task.title}</span>
+              <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                <span>${task.subject}</span>
+                <span>•</span>
+                ${priorityBadge}
+              </div>
+            </div>
+          </label>
+          <button onclick="deleteStudyTask('${task.id}')" class="p-1 text-slate-500 hover:text-rose-400">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function toggleStudyTask(taskId, isChecked) {
+      const log = getDailyLog(appState.selectedDate);
+      const t = log.studyTasks.find(item => item.id === taskId);
+      if (t) {
+        t.completed = isChecked;
+        if (isChecked) playChime('beep');
+        saveStateToStorage();
+        renderStudyView();
+      }
+    }
+
+    function deleteStudyTask(taskId) {
+      const log = getDailyLog(appState.selectedDate);
+      log.studyTasks = log.studyTasks.filter(item => item.id !== taskId);
+      saveStateToStorage();
+      renderStudyView();
+      showToast('Task removed');
+    }
+
+    function setStudyTaskFilter(filter) {
+      studyTaskFilter = filter;
+      ['all', 'active', 'completed'].forEach(f => {
+        const btn = document.getElementById(`filter-task-${f}`);
+        if (f === filter) {
+          btn.className = 'px-2.5 py-1 rounded-md bg-indigo-600 text-white font-medium';
+        } else {
+          btn.className = 'px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200';
+        }
+      });
+      const log = getDailyLog(appState.selectedDate);
+      renderStudyTasks(log.studyTasks || []);
+      lucide.createIcons();
+    }
+
+    function renderStudySessions(sessions) {
+      const container = document.getElementById('study-sessions-list');
+      container.innerHTML = '';
+
+      if (sessions.length === 0) {
+        container.innerHTML = '<div class="text-slate-500 text-xs py-4 text-center">No focus sessions recorded yet today.</div>';
+        return;
+      }
+
+      sessions.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'p-3 rounded-xl bg-slate-800/60 border border-slate-700/80 flex items-center justify-between gap-3 text-xs';
+        item.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold">
+              📚
+            </div>
+            <div>
+              <div class="font-bold text-white">${s.subject} <span class="font-normal text-slate-400 font-mono">(${s.duration} min)</span></div>
+              <div class="text-[11px] text-slate-400">${s.notes || s.technique || 'Pomodoro Interval'}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300">${s.technique || 'Focus'}</span>
+            <button onclick="deleteStudySession('${s.id}')" class="text-slate-500 hover:text-rose-400 p-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function deleteStudySession(sessionId) {
+      const log = getDailyLog(appState.selectedDate);
+      log.studySessions = log.studySessions.filter(s => s.id !== sessionId);
+      saveStateToStorage();
+      renderAllViews();
+      showToast('Focus session deleted');
+    }
+
+    /* --- POMODORO TIMER ENGINE --- */
+    function setPomoPreset(workMin, breakMin, title) {
+      pomodoro.workDuration = workMin * 60;
+      pomodoro.breakDuration = breakMin * 60;
+      pomodoro.remaining = pomodoro.workDuration;
+      pomodoro.mode = 'work';
+      pomodoro.title = title;
+      
+      if (pomodoro.running) {
+        clearInterval(pomodoro.timerId);
+        pomodoro.running = false;
+        const btn = document.getElementById('btn-pomo-start');
+        btn.innerHTML = '<i data-lucide="play" class="w-4 h-4 fill-white"></i> Start Focus';
+        btn.className = 'px-7 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition';
+      }
+
+      document.getElementById('pomo-mode-badge').textContent = `${title} (${workMin} min)`;
+      updatePomodoroDisplay();
+      lucide.createIcons();
+    }
+
+    function togglePomodoro() {
+      const btn = document.getElementById('btn-pomo-start');
+      if (!pomodoro.running) {
+        pomodoro.running = true;
+        pomodoro.activeSubject = document.getElementById('pomo-subject-select').value;
+        btn.innerHTML = '<i data-lucide="pause" class="w-4 h-4 fill-white"></i> Pause';
+        btn.className = 'px-7 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-amber-600/30 transition';
+
+        pomodoro.timerId = setInterval(tickPomodoro, 1000);
+        playChime('beep');
+      } else {
+        pomodoro.running = false;
+        clearInterval(pomodoro.timerId);
+        btn.innerHTML = '<i data-lucide="play" class="w-4 h-4 fill-white"></i> Resume';
+        btn.className = 'px-7 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition';
+      }
+      lucide.createIcons();
+    }
+
+    function tickPomodoro() {
+      pomodoro.remaining--;
+
+      if (pomodoro.remaining < 0) {
+        if (pomodoro.mode === 'work') {
+          // Finished Work Session! Automatically log session!
+          finishPomodoroWork();
+        } else {
+          // Finished Break
+          finishPomodoroBreak();
+        }
+      }
+
+      updatePomodoroDisplay();
+    }
+
+    function updatePomodoroDisplay() {
+      const m = Math.floor(pomodoro.remaining / 60);
+      const s = pomodoro.remaining % 60;
+      document.getElementById('pomo-timer-display').textContent = 
+        `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+      // Update circular SVG progress
+      const total = pomodoro.mode === 'work' ? pomodoro.workDuration : pomodoro.breakDuration;
+      const progress = (total - pomodoro.remaining) / total;
+      const circumference = 439.82; // 2 * PI * 70
+      const offset = circumference * (1 - progress);
+      const circle = document.getElementById('pomo-circle-progress');
+      circle.style.strokeDashoffset = offset;
+
+      const label = document.getElementById('pomo-status-label');
+      if (pomodoro.mode === 'work') {
+        circle.setAttribute('stroke', '#6366f1');
+        label.className = 'text-[11px] font-bold uppercase tracking-wider text-indigo-400 mt-1';
+        label.textContent = `Focusing on ${pomodoro.activeSubject}`;
+      } else {
+        circle.setAttribute('stroke', '#10b981');
+        label.className = 'text-[11px] font-bold uppercase tracking-wider text-emerald-400 mt-1';
+        label.textContent = '☕ Break Time - Rest & Hydrate';
+      }
+    }
+
+    function finishPomodoroWork() {
+      clearInterval(pomodoro.timerId);
+      pomodoro.running = false;
+      playChime('work_end');
+
+      const minutes = Math.round(pomodoro.workDuration / 60);
+      const subject = pomodoro.activeSubject;
+
+      // Automatically log focus session to active subject!
+      const log = getDailyLog(appState.selectedDate);
+      log.studySessions.push({
+        id: 'ss_' + Date.now(),
+        subject: subject,
+        duration: minutes,
+        technique: 'Pomodoro ' + pomodoro.title,
+        notes: `Completed ${minutes}m focus interval.`,
+        timestamp: new Date().toISOString()
+      });
+
+      saveStateToStorage();
+      showToast(`🎯 Logged ${minutes}m to ${subject}! Enjoy your break.`);
+
+      // Switch to break
+      pomodoro.mode = 'break';
+      pomodoro.remaining = pomodoro.breakDuration;
+      
+      const btn = document.getElementById('btn-pomo-start');
+      btn.innerHTML = '<i data-lucide="coffee" class="w-4 h-4"></i> Start Break';
+      btn.className = 'px-7 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition';
+
+      renderAllViews();
+    }
+
+    function finishPomodoroBreak() {
+      clearInterval(pomodoro.timerId);
+      pomodoro.running = false;
+      playChime('break_end');
+      showToast('Break finished! Ready for next focus block.');
+
+      pomodoro.mode = 'work';
+      pomodoro.remaining = pomodoro.workDuration;
+
+      const btn = document.getElementById('btn-pomo-start');
+      btn.innerHTML = '<i data-lucide="play" class="w-4 h-4 fill-white"></i> Start Focus';
+      btn.className = 'px-7 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition';
+
+      updatePomodoroDisplay();
+      lucide.createIcons();
+    }
+
+    function resetPomodoro() {
+      clearInterval(pomodoro.timerId);
+      pomodoro.running = false;
+      pomodoro.mode = 'work';
+      pomodoro.remaining = pomodoro.workDuration;
+
+      const btn = document.getElementById('btn-pomo-start');
+      btn.innerHTML = '<i data-lucide="play" class="w-4 h-4 fill-white"></i> Start Focus';
+      btn.className = 'px-7 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition';
+
+      updatePomodoroDisplay();
+      lucide.createIcons();
+    }
+
+    function skipPomodoroPhase() {
+      if (pomodoro.mode === 'work') {
+        finishPomodoroWork();
+      } else {
+        finishPomodoroBreak();
+      }
+    }
+
+    function startPomodoroDirect() {
+      if (!pomodoro.running) {
+        togglePomodoro();
+      }
+    }
+
+    function promptAddCustomSubject() {
+      const name = prompt('Enter new subject / domain name:');
+      if (name && name.trim()) {
+        const clean = name.trim();
+        if (!appState.customSubjects.includes(clean)) {
+          appState.customSubjects.push(clean);
+          saveStateToStorage();
+          populateSubjectDropdowns();
+          showToast(`Subject "${clean}" added!`);
+        }
+      }
+    }
+
+    function populateSubjectDropdowns() {
+      const selectPomo = document.getElementById('pomo-subject-select');
+      const selectManual = document.getElementById('form-study-subject');
+      const selectTask = document.getElementById('form-task-subject');
+
+      const optionsHtml = appState.customSubjects.map(s => `<option value="${s}">${s}</option>`).join('');
+      if (selectPomo) selectPomo.innerHTML = optionsHtml;
+      if (selectManual) selectManual.innerHTML = optionsHtml;
+      if (selectTask) selectTask.innerHTML = optionsHtml;
+    }
+
+    /* --- 4. ANALYTICS & HEATMAP RENDERER --- */
+    function renderAnalyticsView() {
+      const streaks = calculateStreaks();
+
+      document.getElementById('analytics-fit-streak').textContent = streaks.fitCurrent;
+      document.getElementById('analytics-fit-best').textContent = `${streaks.fitBest} days`;
+
+      document.getElementById('analytics-study-streak').textContent = streaks.studyCurrent;
+      document.getElementById('analytics-study-best').textContent = `${streaks.studyBest} days`;
+
+      document.getElementById('analytics-perfect-streak').textContent = streaks.perfectCurrent;
+      document.getElementById('analytics-perfect-best').textContent = `${streaks.perfectBest} days`;
+
+      renderHeatmap();
+      renderAnalyticsBarChart();
+      renderLifetimeAggregates();
+    }
+
+    function renderHeatmap() {
+      const container = document.getElementById('heatmap-grid');
+      container.innerHTML = '';
+
+      // Generate last 14 days
+      const days = [];
+      const today = new Date();
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        days.push(d);
+      }
+
+      days.forEach(d => {
+        const dStr = getFormattedDate(d);
+        const log = appState.dailyLogs[dStr];
+        const fitDone = log && log.fitnessSessions && log.fitnessSessions.length > 0;
+        const studyDone = log && log.studySessions && log.studySessions.length > 0;
+        const both = fitDone && studyDone;
+
+        const tile = document.createElement('div');
+        tile.onclick = () => selectDate(dStr);
+        tile.className = 'flex flex-col items-center justify-center p-2 rounded-xl border transition cursor-pointer hover:scale-105';
+
+        let bgClass = 'bg-slate-900 border-slate-800 text-slate-500';
+        let statusText = 'Rest';
+
+        if (both) {
+          bgClass = 'bg-gradient-to-br from-emerald-600 to-indigo-600 text-white border-amber-400/50 shadow-md shadow-emerald-500/20';
+          statusText = 'Both';
+        } else if (fitDone) {
+          bgClass = 'bg-emerald-600/30 border-emerald-500/50 text-emerald-300';
+          statusText = 'Fit';
+        } else if (studyDone) {
+          bgClass = 'bg-indigo-600/30 border-indigo-500/50 text-indigo-300';
+          statusText = 'Study';
+        }
+
+        tile.className += ` ${bgClass}`;
+        tile.innerHTML = `
+          <span class="text-[9px] font-bold uppercase">${getDayNameShort(d)}</span>
+          <span class="text-xs font-black mt-0.5">${d.getDate()}</span>
+          <span class="text-[8px] mt-1 font-semibold uppercase tracking-wider">${statusText}</span>
+        `;
+        container.appendChild(tile);
+      });
+    }
+
+    function renderAnalyticsBarChart() {
+      const chart = document.getElementById('analytics-bar-chart');
+      const labels = document.getElementById('analytics-bar-chart-labels');
+      chart.innerHTML = '';
+      labels.innerHTML = '';
+
+      // Last 7 days
+      const days = [];
+      const today = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        days.push(d);
+      }
+
+      const maxScale = 5; // e.g. 5 hours or 50 mins
+
+      days.forEach(d => {
+        const dStr = getFormattedDate(d);
+        const log = appState.dailyLogs[dStr];
+
+        const fitMin = log ? log.fitnessSessions.reduce((acc, s) => acc + (Number(s.duration) || 0), 0) : 0;
+        const studyMin = log ? log.studySessions.reduce((acc, s) => acc + (Number(s.duration) || 0), 0) : 0;
+
+        const studyHours = (studyMin / 60);
+        // Normalize fit minutes (45 min = 4.5 scale units)
+        const fitUnits = (fitMin / 10);
+
+        const studyHeightPercent = Math.min(100, Math.round((studyHours / maxScale) * 100));
+        const fitHeightPercent = Math.min(100, Math.round((fitUnits / maxScale) * 100));
+
+        const barGroup = document.createElement('div');
+        barGroup.className = 'flex-1 flex items-end justify-center gap-1.5 h-full group cursor-pointer';
+        barGroup.onclick = () => selectDate(dStr);
+        barGroup.title = `${dStr}: ${studyHours.toFixed(1)}h Study, ${fitMin}m Workout`;
+
+        barGroup.innerHTML = `
+          <!-- Study Bar -->
+          <div class="w-full max-w-[16px] bg-gradient-to-t from-indigo-600 to-violet-400 rounded-t-sm transition-all duration-500 hover:brightness-125" 
+               style="height: ${Math.max(4, studyHeightPercent)}%"></div>
+          <!-- Fitness Bar -->
+          <div class="w-full max-w-[16px] bg-gradient-to-t from-emerald-600 to-teal-400 rounded-t-sm transition-all duration-500 hover:brightness-125" 
+               style="height: ${Math.max(4, fitHeightPercent)}%"></div>
+        `;
+        chart.appendChild(barGroup);
+
+        const label = document.createElement('div');
+        label.className = `${dStr === appState.selectedDate ? 'text-emerald-400 font-bold' : 'text-slate-400'}`;
+        label.textContent = `${getDayNameShort(d)} ${d.getDate()}`;
+        labels.appendChild(label);
+      });
+    }
+
+    function renderLifetimeAggregates() {
+      let totalStudyMin = 0;
+      let totalFitMin = 0;
+      let totalWorkouts = 0;
+      let totalCalories = 0;
+
+      Object.values(appState.dailyLogs).forEach(log => {
+        (log.studySessions || []).forEach(s => totalStudyMin += (Number(s.duration) || 0));
+        (log.fitnessSessions || []).forEach(s => {
+          totalFitMin += (Number(s.duration) || 0);
+          totalWorkouts++;
+          totalCalories += (Number(s.calories) || 0);
+        });
+      });
+
+      document.getElementById('life-study-hours').textContent = `${(totalStudyMin / 60).toFixed(1)} hrs`;
+      document.getElementById('life-fit-minutes').textContent = `${totalFitMin} min`;
+      document.getElementById('life-total-workouts').textContent = totalWorkouts;
+      document.getElementById('life-total-calories').textContent = `${totalCalories} kcal`;
+    }
+
+    /* ==========================================================
+       MODAL CONTROLLERS & FORM HANDLERS
+       ========================================================== */
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('open');
+    }
+
+    function openWorkoutModal() {
+      openModal('modal-workout');
+      document.getElementById('form-workout-duration').value = '30';
+      document.getElementById('form-workout-calories').value = '';
+      document.getElementById('form-workout-metric').value = '';
+      document.getElementById('form-workout-notes').value = '';
+    }
+
+    function selectWorkoutType(type) {
+      document.getElementById('form-workout-type').value = type;
+      document.querySelectorAll('.workout-type-btn').forEach(btn => {
+        if (btn.textContent.includes(type.split('/')[0])) {
+          btn.className = 'workout-type-btn p-2 rounded-xl bg-emerald-600/30 border-2 border-emerald-500 text-white font-medium flex items-center gap-1.5 active-workout-type';
+        } else {
+          btn.className = 'workout-type-btn p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 font-medium hover:border-emerald-500 flex items-center gap-1.5';
+        }
+      });
+    }
+
+    function submitWorkoutForm(e) {
+      e.preventDefault();
+      const type = document.getElementById('form-workout-type').value;
+      const duration = parseInt(document.getElementById('form-workout-duration').value) || 30;
+      const intensity = document.getElementById('form-workout-intensity').value;
+      const calories = parseInt(document.getElementById('form-workout-calories').value) || (duration * (intensity === 'High' ? 10 : intensity === 'Med' ? 7 : 4));
+      const metrics = document.getElementById('form-workout-metric').value.trim();
+      const notes = document.getElementById('form-workout-notes').value.trim();
+
+      const log = getDailyLog(appState.selectedDate);
+      log.fitnessSessions.push({
+        id: 'fs_' + Date.now(),
+        type,
+        duration,
+        intensity,
+        calories,
+        metrics,
+        notes,
+        timestamp: new Date().toISOString()
+      });
+
+      // Auto-check the workout checklist item if present
+      if (!log.completedChecklist.includes('fit_workout')) {
+        log.completedChecklist.push('fit_workout');
+      }
+
+      saveStateToStorage();
+      closeModal('modal-workout');
+      renderAllViews();
+      playChime('success');
+      showToast(`💪 ${type} session logged!`);
+    }
+
+    function openStudyTaskModal() {
+      openModal('modal-study-task');
+      document.getElementById('form-task-title').value = '';
+    }
+
+    function submitStudyTaskForm(e) {
+      e.preventDefault();
+      const title = document.getElementById('form-task-title').value.trim();
+      if (!title) return;
+      const subject = document.getElementById('form-task-subject').value;
+      const priority = document.getElementById('form-task-priority').value;
+
+      const log = getDailyLog(appState.selectedDate);
+      log.studyTasks.push({
+        id: 'st_' + Date.now(),
+        title,
+        subject,
+        priority,
+        completed: false
+      });
+
+      saveStateToStorage();
+      closeModal('modal-study-task');
+      renderStudyView();
+      showToast('Study target added');
+    }
+
+    function openManualStudySessionModal() {
+      openModal('modal-manual-study');
+      document.getElementById('form-study-duration').value = '45';
+      document.getElementById('form-study-notes').value = '';
+    }
+
+    function submitManualStudyForm(e) {
+      e.preventDefault();
+      const subject = document.getElementById('form-study-subject').value;
+      const duration = parseInt(document.getElementById('form-study-duration').value) || 45;
+      const technique = document.getElementById('form-study-technique').value;
+      const notes = document.getElementById('form-study-notes').value.trim();
+
+      const log = getDailyLog(appState.selectedDate);
+      log.studySessions.push({
+        id: 'ss_' + Date.now(),
+        subject,
+        duration,
+        technique,
+        notes,
+        timestamp: new Date().toISOString()
+      });
+
+      if (!log.completedChecklist.includes('study_focus')) {
+        log.completedChecklist.push('study_focus');
+      }
+
+      saveStateToStorage();
+      closeModal('modal-manual-study');
+      renderAllViews();
+      playChime('success');
+      showToast(`📖 ${duration}m logged to ${subject}!`);
+    }
+
+    function scrollToTimer() {
+      const el = document.getElementById('fitness-timer-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /* ==========================================================
+       DATA BACKUP: JSON EXPORT & IMPORT
+       ========================================================== */
+    function toggleDataMenu() {
+      const dd = document.getElementById('data-dropdown');
+      dd.classList.toggle('hidden');
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      const dd = document.getElementById('data-dropdown');
+      const btn = e.target.closest('button[title="Data Backup / Settings"]');
+      if (dd && !dd.contains(e.target) && !btn) {
+        dd.classList.add('hidden');
+      }
+    });
+
+    function toggleSoundPreference() {
+      appState.settings.soundEnabled = !appState.settings.soundEnabled;
+      saveStateToStorage();
+      const badge = document.getElementById('sound-pref-badge');
+      if (appState.settings.soundEnabled) {
+        badge.className = 'px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400';
+        badge.textContent = 'ON';
+        playChime('beep');
+        showToast('Sound chimes enabled');
+      } else {
+        badge.className = 'px-1.5 py-0.5 rounded text-[10px] bg-slate-700 text-slate-400';
+        badge.textContent = 'OFF';
+        showToast('Sound chimes muted');
+      }
+    }
+
+    function exportDataBackup() {
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `fitstudy_backup_${getTodayString()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('Backup JSON downloaded! 💾');
+      document.getElementById('data-dropdown').classList.add('hidden');
+    }
+
+    function importDataBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed && parsed.dailyLogs) {
+            appState = { ...appState, ...parsed };
+            saveStateToStorage();
+            renderAllViews();
+            showToast('Backup successfully imported! 🚀');
+          } else {
+            alert('Invalid FitStudy backup file format.');
+          }
+        } catch (err) {
+          alert('Failed to parse JSON file.');
+        }
+      };
+      reader.readAsText(file);
+      document.getElementById('data-dropdown').classList.add('hidden');
+    }
+
+    function resetToSampleData() {
+      if (confirm('Reset tracker data back to clean sample routine?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        loadStateFromStorage();
+        renderAllViews();
+        showToast('Reset to sample data.');
+        document.getElementById('data-dropdown').classList.add('hidden');
+      }
+    }
+
+    /* ==========================================================
+       TOAST SYSTEM
+       ========================================================== */
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'px-4 py-2.5 rounded-xl bg-slate-900/95 border border-slate-700 text-white text-xs font-semibold shadow-2xl flex items-center gap-2 transform translate-y-2 opacity-0 transition-all duration-300';
+      toast.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> <span>${message}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 2500);
+    }
+
+    /* ==========================================================
+       INITIALIZATION
+       ========================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadStateFromStorage();
+      populateSubjectDropdowns();
+      renderAllViews();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
