@@ -9,6 +9,11 @@
   <meta name="theme-color" content="#ffffff">
   <title>FIDDY - Daily Performance & Habit Tracker</title>
 
+  <!-- Google Fonts: Inter (400, 500, 600, 700) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <!-- PWA SVG Icon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23000000'/%3E%3Cpath d='M11 21V11H19M11 16H16' stroke='%23FFFFFF' stroke-width='2.5' stroke-linecap='square'/%3E%3Ccircle cx='19' cy='11' r='1.5' fill='%23FFFFFF'/%3E%3C/svg%3E">
 
@@ -58,9 +63,20 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    /* Minimalist crisp borders & scrollbars */
+    /* Claude-style typography & refined borders */
     * {
       -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      letter-spacing: -0.011em;
+    }
+    h1, h2, h3, h4 {
+      letter-spacing: -0.02em;
     }
     ::-webkit-scrollbar {
       width: 5px;
@@ -81,7 +97,7 @@
       background: #ffffff;
       border: 1px solid #e4e4e7;
       border-radius: 1rem;
-      transition: all 0.2s ease-in-out;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .fiddy-card:hover {
       border-color: #d4d4d8;
@@ -98,8 +114,8 @@
       pointer-events: auto;
     }
     .modal-content {
-      transform: translateY(12px) scale(0.97);
-      transition: transform 0.2s ease;
+      transform: translateY(8px) scale(0.98);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
     }
     .modal-backdrop.open .modal-content {
       transform: translateY(0) scale(1);
@@ -112,52 +128,52 @@
   </style>
 </head>
 
-<body class="bg-zinc-50 text-zinc-900 min-h-screen flex flex-col font-sans select-none antialiased pb-24 md:pb-10">
+<body class="bg-zinc-50 text-zinc-900 min-h-screen flex flex-col font-sans select-none antialiased pb-24 md:pb-10" style="font-family: 'Inter', sans-serif;">
 
   <!-- ================= TOP HEADER (BRANDING) ================= -->
-  <header class="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-zinc-200 bg-white sticky top-0 z-40">
+  <header class="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-zinc-200/90 bg-white sticky top-0 z-40">
     <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('dashboard')">
-      <!-- Minimalist Black & White Monogram Icon -->
+      <!-- Minimalist Monogram Icon -->
       <div class="flex-shrink-0">
         <svg class="w-8 h-8" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="32" height="32" rx="6" fill="#000000"/>
-          <path d="M11 21V11H19M11 16H16" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="square"/>
-          <circle cx="19" cy="11" r="1.5" fill="#FFFFFF"/>
+          <rect width="32" height="32" rx="7" fill="#18181b"/>
+          <path d="M11 21V11H19M11 16H16" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="19" cy="11" r="1.4" fill="#FFFFFF"/>
         </svg>
       </div>
-      <!-- Bold All-Caps Branding -->
+      <!-- Claude-Style Typography Branding -->
       <div class="flex flex-col">
         <div class="flex items-center gap-1.5">
-          <span class="text-xl font-extrabold tracking-widest text-black font-sans">FIDDY</span>
-          <span class="text-[9px] font-bold tracking-wider px-1 py-0.5 rounded bg-black text-white">PRO</span>
+          <span class="text-lg font-bold tracking-tight text-zinc-950 font-sans">FIDDY</span>
+          <span class="text-[10px] font-medium tracking-wide px-1.5 py-0.5 rounded-md bg-zinc-900 text-zinc-200">PRO</span>
         </div>
-        <span class="text-[10px] uppercase tracking-widest text-zinc-500 font-semibold">Habit Tracker</span>
+        <span class="text-[11px] font-normal text-zinc-500">Daily Performance Log</span>
       </div>
     </div>
 
     <!-- Right Header Actions (Streaks + Settings) -->
-    <div class="flex items-center gap-2 sm:gap-3">
+    <div class="flex items-center gap-2 sm:gap-2.5">
       <!-- Streaks Badge -->
-      <div class="flex items-center gap-2 px-3 py-1.5 bg-zinc-100 border border-zinc-200 rounded-full text-xs font-semibold" title="Daily Streaks">
-        <div class="flex items-center gap-1 text-emerald-600" title="Fitness Streak">
+      <div class="flex items-center gap-2 px-3 py-1.5 bg-zinc-50 border border-zinc-200/90 rounded-full text-xs font-medium text-zinc-700" title="Daily Streaks">
+        <div class="flex items-center gap-1 text-emerald-600 font-semibold" title="Fitness Streak">
           <i data-lucide="dumbbell" class="w-3.5 h-3.5"></i>
           <span id="streak-fit">0</span>d
         </div>
         <span class="text-zinc-300">|</span>
-        <div class="flex items-center gap-1 text-indigo-600" title="Study Streak">
+        <div class="flex items-center gap-1 text-indigo-600 font-semibold" title="Study Streak">
           <i data-lucide="brain" class="w-3.5 h-3.5"></i>
           <span id="streak-study">0</span>d
         </div>
         <span class="text-zinc-300">|</span>
-        <div class="flex items-center gap-1 text-black font-bold" title="Dual Goal Days">
-          <i data-lucide="flame" class="w-3.5 h-3.5 fill-black"></i>
+        <div class="flex items-center gap-1 text-zinc-900 font-bold" title="Dual Goal Days">
+          <i data-lucide="flame" class="w-3.5 h-3.5 fill-zinc-900"></i>
           <span id="streak-dual">0</span>
         </div>
       </div>
 
       <!-- Profile / BMR Target Edit Button -->
-      <button onclick="openOnboardingModal()" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-zinc-200 hover:border-black text-xs font-bold text-black transition" title="BMR & Macro Targets Profile">
-        <i data-lucide="user" class="w-3.5 h-3.5"></i>
+      <button onclick="openOnboardingModal()" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50 text-xs font-medium text-zinc-800 transition" title="BMR & Macro Targets Profile">
+        <i data-lucide="user" class="w-3.5 h-3.5 text-zinc-600"></i>
         <span id="header-profile-btn-text">Profile</span>
       </button>
 
@@ -168,60 +184,121 @@
       </div>
 
       <!-- Settings / API Key Button -->
-      <button onclick="openModal('settings-modal')" id="openSettingsBtn" class="p-2 rounded-xl hover:bg-zinc-100 border border-zinc-200 text-black transition" title="Settings & Gemini API Key">
+      <button onclick="openModal('settings-modal')" id="openSettingsBtn" class="p-2 rounded-xl hover:bg-zinc-100 border border-zinc-200 text-zinc-600 hover:text-zinc-950 transition" title="Settings & Gemini API">
         <i data-lucide="settings" class="w-4 h-4"></i>
       </button>
     </div>
   </header>
 
-  <!-- ================= HORIZONTAL DATE SELECTOR (7-DAY STRIP) ================= -->
-  <section class="bg-white border-b border-zinc-200 px-3 sm:px-6 py-2.5">
-    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-      <!-- Date Week Controls -->
-      <div class="flex items-center justify-between w-full sm:w-auto gap-3">
-        <div class="flex items-center gap-1">
-          <button onclick="shiftWeek(-1)" class="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-700 transition" title="Previous Week">
+  <!-- ================= FULL MONTH & YEAR CALENDAR MODULE ================= -->
+  <section class="bg-white border-b border-zinc-200/90 px-3 sm:px-6 py-3">
+    <div class="max-w-6xl mx-auto space-y-3">
+
+      <!-- Calendar Control Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <button onclick="shiftMonth(-1)" class="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300 text-zinc-700 transition" title="Previous Month">
             <i data-lucide="chevron-left" class="w-4 h-4"></i>
           </button>
-          <button onclick="shiftWeek(1)" class="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-700 transition" title="Next Week">
+
+          <!-- Month & Year Direct Dropdown Selectors -->
+          <div class="flex items-center gap-1.5">
+            <select id="cal-select-month" onchange="onCalendarDropdownChange()" class="bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-lg px-2.5 py-1 text-xs font-semibold text-zinc-900 outline-none cursor-pointer transition">
+              <option value="0">January</option>
+              <option value="1">February</option>
+              <option value="2">March</option>
+              <option value="3">April</option>
+              <option value="4">May</option>
+              <option value="5">June</option>
+              <option value="6">July</option>
+              <option value="7">August</option>
+              <option value="8">September</option>
+              <option value="9">October</option>
+              <option value="10">November</option>
+              <option value="11">December</option>
+            </select>
+            <select id="cal-select-year" onchange="onCalendarDropdownChange()" class="bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-lg px-2 py-1 text-xs font-mono font-semibold text-zinc-900 outline-none cursor-pointer transition">
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2029">2029</option>
+              <option value="2030">2030</option>
+            </select>
+          </div>
+
+          <button onclick="shiftMonth(1)" class="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300 text-zinc-700 transition" title="Next Month">
             <i data-lucide="chevron-right" class="w-4 h-4"></i>
           </button>
-          <span id="week-range-text" class="text-xs font-bold text-zinc-800 ml-1">Current Week</span>
+
+          <span id="cal-header-title" class="hidden md:inline-block text-xs font-medium tracking-tight text-zinc-400 ml-1"></span>
         </div>
 
+        <!-- Status Pill, Start Date Info & Today Jump -->
         <div class="flex items-center gap-2">
-          <div id="date-status-pill" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-black text-white">
+          <span class="hidden lg:inline-flex items-center gap-1 text-[11px] font-normal text-zinc-500">
+            Started: <span id="cal-start-date-label" class="font-mono text-zinc-700 font-medium">--</span>
+          </span>
+          <div id="date-status-pill" class="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-zinc-900 text-zinc-100">
             Today
           </div>
-          <button onclick="selectToday()" class="text-xs font-semibold px-2.5 py-1 rounded-lg border border-zinc-300 hover:bg-zinc-100 text-zinc-800 transition">
-            Jump to Today
+          <button onclick="selectToday()" class="text-xs font-medium px-3 py-1 rounded-lg border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-zinc-800 transition">
+            Today
+          </button>
+          <button onclick="toggleCalendarCollapse()" id="btn-toggle-calendar" class="p-1.5 rounded-lg border border-zinc-200 hover:border-zinc-300 text-zinc-600 transition" title="Toggle Month Grid">
+            <i data-lucide="calendar-days" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
 
-      <!-- 7 Day Interactive Selector Strip -->
-      <div id="week-strip-container" class="grid grid-cols-7 gap-1.5 w-full sm:w-auto">
-        <!-- Rendered dynamically by renderWeekStrip() -->
+      <!-- Month & Year Grid Wrapper -->
+      <div id="month-calendar-wrapper" class="bg-zinc-50/60 border border-zinc-200/90 rounded-2xl p-2.5 sm:p-3.5 space-y-2">
+        <!-- Weekday Column Headers (Sun - Sat) -->
+        <div class="grid grid-cols-7 gap-1 text-center">
+          <span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 py-1">Sun</span>
+          <span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 py-1">Mon</span>
+          <span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 py-1">Tue</span>
+          <span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 py-1">Wed</span>
+          <span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 py-1">Thu</span>
+          <span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 py-1">Fri</span>
+          <span class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 py-1">Sat</span>
+        </div>
+
+        <!-- Dynamic 7-Column Calendar Cells -->
+        <div id="month-calendar-grid" class="grid grid-cols-7 gap-1 sm:gap-1.5">
+          <!-- Rendered dynamically by renderMonthCalendar() -->
+        </div>
+
+        <!-- Legend Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-200/70 text-[11px] font-normal text-zinc-500">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Fitness</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-indigo-500 inline-block"></span> Study</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Nutrition</span>
+          </div>
+          <span class="text-zinc-400 text-[10px]">Muted dates precede start date</span>
+        </div>
       </div>
+
     </div>
   </section>
 
   <!-- ================= MAIN NAVIGATION TABS (DESKTOP) ================= -->
   <nav class="hidden md:block bg-white border-b border-zinc-200 px-6">
-    <div class="max-w-6xl mx-auto flex items-center gap-2">
-      <button onclick="switchView('dashboard')" id="tab-btn-dashboard" class="nav-tab px-4 py-3 text-xs uppercase tracking-widest font-bold border-b-2 border-black text-black flex items-center gap-2 transition">
+    <div class="max-w-6xl mx-auto flex items-center gap-1">
+      <button onclick="switchView('dashboard')" id="tab-btn-dashboard" class="nav-tab px-4 py-3 text-xs tracking-normal font-semibold border-b-2 border-zinc-950 text-zinc-950 flex items-center gap-2 transition">
         <i data-lucide="layout-grid" class="w-4 h-4"></i> Dashboard
       </button>
-      <button onclick="switchView('nutrition')" id="tab-btn-nutrition" class="nav-tab px-4 py-3 text-xs uppercase tracking-widest font-bold border-b-2 border-transparent text-zinc-500 hover:text-black flex items-center gap-2 transition">
+      <button onclick="switchView('nutrition')" id="tab-btn-nutrition" class="nav-tab px-4 py-3 text-xs tracking-normal font-medium border-b-2 border-transparent text-zinc-500 hover:text-zinc-900 flex items-center gap-2 transition">
         <i data-lucide="utensils" class="w-4 h-4"></i> AI Food & Macros
       </button>
-      <button onclick="switchView('fitness')" id="tab-btn-fitness" class="nav-tab px-4 py-3 text-xs uppercase tracking-widest font-bold border-b-2 border-transparent text-zinc-500 hover:text-black flex items-center gap-2 transition">
+      <button onclick="switchView('fitness')" id="tab-btn-fitness" class="nav-tab px-4 py-3 text-xs tracking-normal font-medium border-b-2 border-transparent text-zinc-500 hover:text-zinc-900 flex items-center gap-2 transition">
         <i data-lucide="dumbbell" class="w-4 h-4"></i> Fitness
       </button>
-      <button onclick="switchView('study')" id="tab-btn-study" class="nav-tab px-4 py-3 text-xs uppercase tracking-widest font-bold border-b-2 border-transparent text-zinc-500 hover:text-black flex items-center gap-2 transition">
+      <button onclick="switchView('study')" id="tab-btn-study" class="nav-tab px-4 py-3 text-xs tracking-normal font-medium border-b-2 border-transparent text-zinc-500 hover:text-zinc-900 flex items-center gap-2 transition">
         <i data-lucide="brain" class="w-4 h-4"></i> Study & Pomodoro
       </button>
-      <button onclick="switchView('analytics')" id="tab-btn-analytics" class="nav-tab px-4 py-3 text-xs uppercase tracking-widest font-bold border-b-2 border-transparent text-zinc-500 hover:text-black flex items-center gap-2 transition">
+      <button onclick="switchView('analytics')" id="tab-btn-analytics" class="nav-tab px-4 py-3 text-xs tracking-normal font-medium border-b-2 border-transparent text-zinc-500 hover:text-zinc-900 flex items-center gap-2 transition">
         <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Analytics
       </button>
     </div>
@@ -234,30 +311,30 @@
     <div id="view-dashboard" class="fiddy-view space-y-6">
 
       <!-- Top Summary: Targets Overview Card -->
-      <div class="fiddy-card p-5 sm:p-6 shadow-sm">
+      <div class="fiddy-card p-5 sm:p-6 shadow-xs">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-100 pb-4 mb-4">
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-xs font-bold uppercase tracking-widest text-zinc-400">Daily Performance</span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-zinc-700 uppercase" id="dash-date-badge">TODAY</span>
+              <span class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">Daily Performance</span>
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-zinc-100 text-zinc-700 tracking-wide" id="dash-date-badge">TODAY</span>
             </div>
-            <h1 class="text-xl sm:text-2xl font-black tracking-tight text-black mt-0.5">Daily Targets & Macro Gauge</h1>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-950 mt-0.5">Daily Targets & Macro Gauge</h1>
           </div>
-          <button onclick="openModal('goal-modal')" class="self-start sm:self-auto px-3 py-1.5 rounded-lg border border-zinc-200 hover:border-black text-xs font-bold flex items-center gap-1.5 transition">
-            <i data-lucide="sliders" class="w-3.5 h-3.5"></i> Edit Goals
+          <button onclick="openModal('goal-modal')" class="self-start sm:self-auto px-3 py-1.5 rounded-xl border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 text-xs font-medium text-zinc-800 flex items-center gap-1.5 transition">
+            <i data-lucide="sliders" class="w-3.5 h-3.5 text-zinc-500"></i> Edit Goals
           </button>
         </div>
 
         <!-- 4 Key Gauges Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Calorie Gauge -->
-          <div class="p-4 bg-zinc-50 border border-zinc-200 rounded-xl">
-            <div class="flex items-center justify-between text-xs font-semibold text-zinc-500">
-              <span class="flex items-center gap-1.5"><i data-lucide="flame" class="w-4 h-4 text-zinc-900"></i> Calories</span>
-              <span id="gauge-cal-label" class="font-mono text-zinc-900">0 / 2200 kcal</span>
+          <div class="p-4 bg-zinc-50/70 border border-zinc-200/90 rounded-xl">
+            <div class="flex items-center justify-between text-xs font-medium text-zinc-600">
+              <span class="flex items-center gap-1.5"><i data-lucide="flame" class="w-3.5 h-3.5 text-zinc-900"></i> Calories</span>
+              <span id="gauge-cal-label" class="font-mono text-zinc-900 font-medium">0 / 2200 kcal</span>
             </div>
-            <div class="mt-2 w-full bg-zinc-200 rounded-full h-2 overflow-hidden">
-              <div id="gauge-cal-bar" class="bar-fill bg-black h-2 rounded-full" style="width: 0%"></div>
+            <div class="mt-2 w-full bg-zinc-200/80 rounded-full h-2 overflow-hidden">
+              <div id="gauge-cal-bar" class="bar-fill bg-zinc-900 h-2 rounded-full" style="width: 0%"></div>
             </div>
             <div class="mt-1 flex justify-between text-[11px] text-zinc-400">
               <span id="gauge-cal-pct">0%</span>
@@ -266,12 +343,12 @@
           </div>
 
           <!-- Protein Gauge -->
-          <div class="p-4 bg-zinc-50 border border-zinc-200 rounded-xl">
-            <div class="flex items-center justify-between text-xs font-semibold text-zinc-500">
-              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Protein</span>
-              <span id="gauge-pro-label" class="font-mono text-emerald-700">0 / 120g</span>
+          <div class="p-4 bg-zinc-50/70 border border-zinc-200/90 rounded-xl">
+            <div class="flex items-center justify-between text-xs font-medium text-zinc-600">
+              <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Protein</span>
+              <span id="gauge-pro-label" class="font-mono text-emerald-700 font-medium">0 / 120g</span>
             </div>
-            <div class="mt-2 w-full bg-zinc-200 rounded-full h-2 overflow-hidden">
+            <div class="mt-2 w-full bg-zinc-200/80 rounded-full h-2 overflow-hidden">
               <div id="gauge-pro-bar" class="bar-fill bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
             </div>
             <div class="mt-1 flex justify-between text-[11px] text-zinc-400">
@@ -281,12 +358,12 @@
           </div>
 
           <!-- Fitness Workout Target -->
-          <div class="p-4 bg-zinc-50 border border-zinc-200 rounded-xl">
-            <div class="flex items-center justify-between text-xs font-semibold text-zinc-500">
-              <span class="flex items-center gap-1.5"><i data-lucide="dumbbell" class="w-4 h-4 text-emerald-600"></i> Workout</span>
-              <span id="gauge-fit-label" class="font-mono text-zinc-900">0 / 45m</span>
+          <div class="p-4 bg-zinc-50/70 border border-zinc-200/90 rounded-xl">
+            <div class="flex items-center justify-between text-xs font-medium text-zinc-600">
+              <span class="flex items-center gap-1.5"><i data-lucide="dumbbell" class="w-3.5 h-3.5 text-emerald-600"></i> Workout</span>
+              <span id="gauge-fit-label" class="font-mono text-zinc-900 font-medium">0 / 45m</span>
             </div>
-            <div class="mt-2 w-full bg-zinc-200 rounded-full h-2 overflow-hidden">
+            <div class="mt-2 w-full bg-zinc-200/80 rounded-full h-2 overflow-hidden">
               <div id="gauge-fit-bar" class="bar-fill bg-emerald-600 h-2 rounded-full" style="width: 0%"></div>
             </div>
             <div class="mt-1 flex justify-between text-[11px] text-zinc-400">
@@ -296,12 +373,12 @@
           </div>
 
           <!-- Study Target -->
-          <div class="p-4 bg-zinc-50 border border-zinc-200 rounded-xl">
-            <div class="flex items-center justify-between text-xs font-semibold text-zinc-500">
-              <span class="flex items-center gap-1.5"><i data-lucide="brain" class="w-4 h-4 text-indigo-600"></i> Deep Work</span>
-              <span id="gauge-study-label" class="font-mono text-zinc-900">0 / 3.0h</span>
+          <div class="p-4 bg-zinc-50/70 border border-zinc-200/90 rounded-xl">
+            <div class="flex items-center justify-between text-xs font-medium text-zinc-600">
+              <span class="flex items-center gap-1.5"><i data-lucide="brain" class="w-3.5 h-3.5 text-indigo-600"></i> Deep Work</span>
+              <span id="gauge-study-label" class="font-mono text-zinc-900 font-medium">0 / 3.0h</span>
             </div>
-            <div class="mt-2 w-full bg-zinc-200 rounded-full h-2 overflow-hidden">
+            <div class="mt-2 w-full bg-zinc-200/80 rounded-full h-2 overflow-hidden">
               <div id="gauge-study-bar" class="bar-fill bg-indigo-600 h-2 rounded-full" style="width: 0%"></div>
             </div>
             <div class="mt-1 flex justify-between text-[11px] text-zinc-400">
@@ -312,48 +389,48 @@
         </div>
 
         <!-- 3 Stacked Live Nutrition Palette Progress Bars -->
-        <div class="mt-5 pt-5 border-t border-zinc-200 space-y-3">
+        <div class="mt-5 pt-5 border-t border-zinc-200/80 space-y-3">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-black">Live Macro Palette</span>
-            <span class="text-[11px] text-zinc-500" id="macro-calories-split">P: 0% • C: 0% • F: 0%</span>
+            <span class="text-xs font-semibold tracking-tight text-zinc-900">Live Macro Palette</span>
+            <span class="text-[11px] text-zinc-500 font-normal" id="macro-calories-split">P: 0% • C: 0% • F: 0%</span>
           </div>
 
           <!-- Protein Bar -->
           <div>
-            <div class="flex justify-between text-xs mb-1 font-semibold">
-              <span class="text-emerald-700 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Protein (Target: <span id="target-protein-txt">130g</span>)
+            <div class="flex justify-between text-xs mb-1 font-medium">
+              <span class="text-emerald-800 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Protein (Target: <span id="target-protein-txt" class="font-medium">130g</span>)
               </span>
               <span id="macro-p-detail" class="font-mono text-emerald-800">0g / 130g (0%)</span>
             </div>
-            <div class="w-full bg-zinc-100 rounded-full h-2.5 overflow-hidden border border-zinc-200">
-              <div id="macro-p-bar" class="bar-fill bg-emerald-500 h-2.5 rounded-full" style="width: 0%"></div>
+            <div class="w-full bg-zinc-100 rounded-full h-2 overflow-hidden border border-zinc-200/80">
+              <div id="macro-p-bar" class="bar-fill bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
             </div>
           </div>
 
           <!-- Carbs Bar -->
           <div>
-            <div class="flex justify-between text-xs mb-1 font-semibold">
-              <span class="text-cyan-700 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-cyan-500"></span> Carbohydrates (Target: <span id="target-carbs-txt">250g</span>)
+            <div class="flex justify-between text-xs mb-1 font-medium">
+              <span class="text-cyan-800 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-cyan-500"></span> Carbohydrates (Target: <span id="target-carbs-txt" class="font-medium">250g</span>)
               </span>
               <span id="macro-c-detail" class="font-mono text-cyan-800">0g / 250g (0%)</span>
             </div>
-            <div class="w-full bg-zinc-100 rounded-full h-2.5 overflow-hidden border border-zinc-200">
-              <div id="macro-c-bar" class="bar-fill bg-cyan-500 h-2.5 rounded-full" style="width: 0%"></div>
+            <div class="w-full bg-zinc-100 rounded-full h-2 overflow-hidden border border-zinc-200/80">
+              <div id="macro-c-bar" class="bar-fill bg-cyan-500 h-2 rounded-full" style="width: 0%"></div>
             </div>
           </div>
 
           <!-- Fats Bar -->
           <div>
-            <div class="flex justify-between text-xs mb-1 font-semibold">
-              <span class="text-amber-700 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-amber-500"></span> Fats (Target: <span id="target-fats-txt">65g</span>)
+            <div class="flex justify-between text-xs mb-1 font-medium">
+              <span class="text-amber-800 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span> Fats (Target: <span id="target-fats-txt" class="font-medium">65g</span>)
               </span>
               <span id="macro-f-detail" class="font-mono text-amber-800">0g / 65g (0%)</span>
             </div>
-            <div class="w-full bg-zinc-100 rounded-full h-2.5 overflow-hidden border border-zinc-200">
-              <div id="macro-f-bar" class="bar-fill bg-amber-500 h-2.5 rounded-full" style="width: 0%"></div>
+            <div class="w-full bg-zinc-100 rounded-full h-2 overflow-hidden border border-zinc-200/80">
+              <div id="macro-f-bar" class="bar-fill bg-amber-500 h-2 rounded-full" style="width: 0%"></div>
             </div>
           </div>
         </div>
@@ -362,52 +439,52 @@
       <!-- Quick Launch Action Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <!-- AI Food Fast Log -->
-        <div class="fiddy-card p-5 flex flex-col justify-between group hover:border-black transition">
+        <div class="fiddy-card p-5 flex flex-col justify-between group hover:border-zinc-400 transition">
           <div class="flex items-start justify-between">
-            <div class="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center">
-              <i data-lucide="sparkles" class="w-5 h-5"></i>
+            <div class="w-9 h-9 rounded-xl bg-zinc-950 text-white flex items-center justify-center">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-100 text-zinc-800">AI Powered</span>
+            <span class="text-[10px] font-medium tracking-wide px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700">AI Gemini</span>
           </div>
           <div class="my-3">
-            <h3 class="text-sm font-black text-black">AI Indian Meal Log</h3>
-            <p class="text-xs text-zinc-500 mt-1">Prompt Gemini with meal text or dish photo for instant macro analysis.</p>
+            <h3 class="text-sm font-semibold tracking-tight text-zinc-900">AI Indian Meal Log</h3>
+            <p class="text-xs text-zinc-500 mt-1 leading-relaxed">Prompt Gemini with meal description or photo for instant macro breakdown.</p>
           </div>
-          <button onclick="switchView('nutrition')" class="w-full py-2 bg-black hover:bg-zinc-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition">
+          <button onclick="switchView('nutrition')" class="w-full py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl flex items-center justify-center gap-1.5 transition">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i> Log Meal
           </button>
         </div>
 
         <!-- Fitness Stopwatch & Log -->
-        <div class="fiddy-card p-5 flex flex-col justify-between group hover:border-black transition">
+        <div class="fiddy-card p-5 flex flex-col justify-between group hover:border-zinc-400 transition">
           <div class="flex items-start justify-between">
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 flex items-center justify-center">
-              <i data-lucide="dumbbell" class="w-5 h-5"></i>
+            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/80 flex items-center justify-center">
+              <i data-lucide="dumbbell" class="w-4 h-4"></i>
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700">Fitness</span>
+            <span class="text-[10px] font-medium tracking-wide px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700">Fitness</span>
           </div>
           <div class="my-3">
-            <h3 class="text-sm font-black text-black">Workout & Drills</h3>
-            <p class="text-xs text-zinc-500 mt-1">Track badminton, running, lifting, or launch the digital stopwatch.</p>
+            <h3 class="text-sm font-semibold tracking-tight text-zinc-900">Workout & Drills</h3>
+            <p class="text-xs text-zinc-500 mt-1 leading-relaxed">Track badminton, running, lifting, or launch the digital workout timer.</p>
           </div>
-          <button onclick="switchView('fitness')" class="w-full py-2 bg-zinc-900 hover:bg-black text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition">
+          <button onclick="switchView('fitness')" class="w-full py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl flex items-center justify-center gap-1.5 transition">
             <i data-lucide="timer" class="w-3.5 h-3.5"></i> Fitness Hub
           </button>
         </div>
 
         <!-- Study Focus Pomodoro -->
-        <div class="fiddy-card p-5 flex flex-col justify-between group hover:border-black transition">
+        <div class="fiddy-card p-5 flex flex-col justify-between group hover:border-zinc-400 transition">
           <div class="flex items-start justify-between">
-            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 border border-indigo-500/30 flex items-center justify-center">
-              <i data-lucide="brain" class="w-5 h-5"></i>
+            <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200/80 flex items-center justify-center">
+              <i data-lucide="brain" class="w-4 h-4"></i>
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">Deep Work</span>
+            <span class="text-[10px] font-medium tracking-wide px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700">Deep Work</span>
           </div>
           <div class="my-3">
-            <h3 class="text-sm font-black text-black">Pomodoro Focus Timer</h3>
-            <p class="text-xs text-zinc-500 mt-1">Structured 25/5 intervals with auto subject logging and audio chimes.</p>
+            <h3 class="text-sm font-semibold tracking-tight text-zinc-900">Pomodoro Focus Timer</h3>
+            <p class="text-xs text-zinc-500 mt-1 leading-relaxed">Structured focus blocks with automated subject logging and chime alerts.</p>
           </div>
-          <button onclick="switchView('study')" class="w-full py-2 bg-zinc-900 hover:bg-black text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition">
+          <button onclick="switchView('study')" class="w-full py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl flex items-center justify-center gap-1.5 transition">
             <i data-lucide="play" class="w-3.5 h-3.5"></i> Start Pomodoro
           </button>
         </div>
@@ -419,10 +496,10 @@
         <div class="lg:col-span-5 fiddy-card p-5 space-y-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <i data-lucide="check-square" class="w-4 h-4 text-black"></i>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-black">Daily Checklist</h2>
+              <i data-lucide="check-square" class="w-4 h-4 text-zinc-900"></i>
+              <h2 class="text-xs font-semibold uppercase tracking-wider text-zinc-900">Daily Checklist</h2>
             </div>
-            <span id="dash-checklist-count" class="text-xs font-mono font-bold text-zinc-500">0/5 Done</span>
+            <span id="dash-checklist-count" class="text-xs font-mono font-medium text-zinc-500">0/5 Done</span>
           </div>
 
           <div id="dash-habits-list" class="space-y-2">
@@ -430,19 +507,19 @@
           </div>
 
           <!-- Hydration Tracker Box -->
-          <div class="p-3 bg-zinc-50 rounded-xl border border-zinc-200 flex items-center justify-between">
+          <div class="p-3 bg-zinc-50/80 rounded-xl border border-zinc-200/90 flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center">
+              <div class="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-700 border border-cyan-200/60 flex items-center justify-center">
                 <i data-lucide="droplet" class="w-4 h-4"></i>
               </div>
               <div>
-                <span class="text-xs font-bold text-black block">Hydration Target</span>
-                <span class="text-[11px] text-zinc-500" id="water-stat-txt">0 / 8 Glasses (2.0L)</span>
+                <span class="text-xs font-semibold text-zinc-900 block">Hydration Target</span>
+                <span class="text-[11px] text-zinc-500 font-normal" id="water-stat-txt">0 / 8 Glasses (2.0L)</span>
               </div>
             </div>
             <div class="flex items-center gap-1.5">
-              <button onclick="changeWater(-1)" class="w-7 h-7 rounded-lg border border-zinc-300 hover:bg-zinc-200 font-bold text-sm flex items-center justify-center">-</button>
-              <button onclick="changeWater(1)" class="w-7 h-7 rounded-lg bg-black text-white hover:bg-zinc-800 font-bold text-sm flex items-center justify-center">+</button>
+              <button onclick="changeWater(-1)" class="w-7 h-7 rounded-lg border border-zinc-200 hover:bg-zinc-200 text-zinc-800 font-medium text-sm flex items-center justify-center transition">-</button>
+              <button onclick="changeWater(1)" class="w-7 h-7 rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 font-medium text-sm flex items-center justify-center transition">+</button>
             </div>
           </div>
         </div>
@@ -451,8 +528,8 @@
         <div class="lg:col-span-7 fiddy-card p-5 space-y-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <i data-lucide="activity" class="w-4 h-4 text-black"></i>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-black">Today's Activity Feed</h2>
+              <i data-lucide="activity" class="w-4 h-4 text-zinc-900"></i>
+              <h2 class="text-xs font-semibold uppercase tracking-wider text-zinc-900">Today's Activity Feed</h2>
             </div>
             <span id="dash-feed-count" class="text-xs text-zinc-400 font-mono">0 entries</span>
           </div>
@@ -473,29 +550,29 @@
       <div class="fiddy-card p-5 sm:p-6 space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-100 pb-3">
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
+            <div class="w-8 h-8 rounded-lg bg-zinc-950 text-white flex items-center justify-center font-semibold text-xs">
               AI
             </div>
             <div>
-              <h2 class="text-base font-black text-black">AI Indian Food & Nutrition Tracker</h2>
-              <p class="text-xs text-zinc-500">Describe your meal in natural English or upload a photo. Powered by Gemini 1.5 Flash.</p>
+              <h2 class="text-base font-semibold tracking-tight text-zinc-900">AI Indian Food & Nutrition Tracker</h2>
+              <p class="text-xs text-zinc-500 mt-0.5">Describe your meal in natural language or attach a photo. Analyzed by Gemini AI.</p>
             </div>
           </div>
           <!-- API Key Status Pill -->
-          <button onclick="openModal('settings-modal')" id="gemini-status-btn" class="self-start sm:self-auto text-xs px-2.5 py-1 rounded-full border border-zinc-200 hover:border-black font-semibold flex items-center gap-1.5 transition">
+          <button onclick="openModal('settings-modal')" id="gemini-status-btn" class="self-start sm:self-auto text-xs px-2.5 py-1 rounded-full border border-zinc-200 hover:border-zinc-300 font-medium flex items-center gap-1.5 transition">
             <span class="w-2 h-2 rounded-full bg-amber-400" id="gemini-status-dot"></span>
-            <span id="gemini-status-text">Set Gemini Key</span>
+            <span id="gemini-status-text">Gemini AI</span>
           </button>
         </div>
 
         <!-- Meal Input Form -->
         <form onsubmit="handleMealSubmit(event)" class="space-y-3">
           <div>
-            <label class="text-xs font-bold uppercase tracking-wider text-zinc-600 block mb-1">Meal Description</label>
+            <label class="text-xs font-medium uppercase tracking-wider text-zinc-500 block mb-1">Meal Description</label>
             <div class="relative">
-              <input type="text" id="meal-input-text" placeholder="e.g., 3 idlis with sambar and coconut chutney, or 2 chapatis with dal and 100g paneer" 
-                     class="w-full bg-white border border-zinc-300 focus:border-black rounded-xl px-4 py-3 text-sm text-black placeholder-zinc-400 outline-none pr-10 transition">
-              <button type="button" onclick="document.getElementById('meal-photo-input').click()" class="absolute right-3 top-3 text-zinc-400 hover:text-black transition" title="Attach meal photo">
+              <input type="text" id="meal-input-text" placeholder="e.g., 3 idlis with sambar and coconut chutney, or 2 rotis with dal and 100g paneer" 
+                     class="w-full bg-white border border-zinc-200 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900/10 rounded-xl px-4 py-3 text-sm text-zinc-900 placeholder-zinc-400 outline-none pr-10 transition">
+              <button type="button" onclick="document.getElementById('meal-photo-input').click()" class="absolute right-3 top-3 text-zinc-400 hover:text-zinc-900 transition" title="Attach meal photo">
                 <i data-lucide="camera" class="w-5 h-5"></i>
               </button>
             </div>
@@ -508,34 +585,34 @@
               <i data-lucide="image" class="w-4 h-4 text-emerald-600"></i>
               <span id="photo-file-name">meal-photo.jpg</span>
             </span>
-            <button type="button" onclick="clearPhotoSelection()" class="text-zinc-500 hover:text-black">
+            <button type="button" onclick="clearPhotoSelection()" class="text-zinc-500 hover:text-zinc-900">
               <i data-lucide="x" class="w-4 h-4"></i>
             </button>
           </div>
 
           <!-- Quick Suggestion Chips -->
           <div class="flex flex-wrap items-center gap-1.5 pt-1">
-            <span class="text-[11px] font-bold text-zinc-400 mr-1">Quick prompts:</span>
-            <button type="button" onclick="fillMealPrompt('3 idlis with sambar and coconut chutney')" class="text-[11px] px-2.5 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 transition">
+            <span class="text-[11px] font-medium text-zinc-400 mr-1">Quick prompts:</span>
+            <button type="button" onclick="fillMealPrompt('3 idlis with sambar and coconut chutney')" class="text-[11px] px-2.5 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 font-medium transition">
               3 Idlis + Sambar
             </button>
-            <button type="button" onclick="fillMealPrompt('2 rotis with dal tadka and 100g paneer sabzi')" class="text-[11px] px-2.5 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 transition">
+            <button type="button" onclick="fillMealPrompt('2 rotis with dal tadka and 100g paneer sabzi')" class="text-[11px] px-2.5 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 font-medium transition">
               2 Rotis + Paneer + Dal
             </button>
-            <button type="button" onclick="fillMealPrompt('1 bowl ragi porridge with milk and jaggery')" class="text-[11px] px-2.5 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 transition">
+            <button type="button" onclick="fillMealPrompt('1 bowl ragi porridge with milk and jaggery')" class="text-[11px] px-2.5 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 font-medium transition">
               Ragi Porridge
             </button>
-            <button type="button" onclick="fillMealPrompt('1 cup masala chai with 2 marie biscuits')" class="text-[11px] px-2.5 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 transition">
+            <button type="button" onclick="fillMealPrompt('1 cup masala chai with 2 marie biscuits')" class="text-[11px] px-2.5 py-1 rounded-full bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 font-medium transition">
               Chai & Biscuits
             </button>
           </div>
 
           <!-- Submit Action Button -->
           <div class="flex items-center justify-between pt-2">
-            <button type="button" onclick="openModal('manual-meal-modal')" class="text-xs text-zinc-500 hover:text-black font-semibold underline">
+            <button type="button" onclick="openModal('manual-meal-modal')" class="text-xs text-zinc-500 hover:text-zinc-900 font-medium underline">
               + Manual Nutrition Entry
             </button>
-            <button type="submit" id="btn-analyze-meal" class="px-5 py-2.5 bg-black hover:bg-zinc-800 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-sm transition">
+            <button type="submit" id="btn-analyze-meal" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl flex items-center gap-2 shadow-xs transition">
               <i data-lucide="sparkles" class="w-4 h-4"></i>
               <span>Analyze with Gemini</span>
             </button>
@@ -543,9 +620,9 @@
         </form>
 
         <!-- Loading Spinner Container -->
-        <div id="ai-loading-box" class="hidden py-6 text-center space-y-2 border border-dashed border-zinc-300 rounded-xl">
-          <div class="inline-block animate-spin w-6 h-6 border-2 border-black border-t-transparent rounded-full"></div>
-          <p class="text-xs font-semibold text-zinc-700">Gemini 1.5 Flash analyzing Indian ingredients & macros...</p>
+        <div id="ai-loading-box" class="hidden py-6 text-center space-y-2 border border-dashed border-zinc-200 rounded-xl">
+          <div class="inline-block animate-spin w-5 h-5 border-2 border-zinc-900 border-t-transparent rounded-full"></div>
+          <p class="text-xs font-medium text-zinc-600">Gemini AI analyzing Indian ingredients & macros...</p>
         </div>
       </div>
 
@@ -553,12 +630,12 @@
       <div class="fiddy-card p-5 space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-sm font-bold uppercase tracking-wider text-black">Meals Logged for Today</h3>
+            <h3 class="text-sm font-semibold tracking-tight text-zinc-900">Meals Logged for Today</h3>
             <span class="text-xs text-zinc-500" id="nutrition-day-summary">0 meals recorded</span>
           </div>
           <!-- Daily Intake Total Badge -->
           <div class="text-right">
-            <span class="text-xs font-mono font-bold text-black" id="nutrition-total-cals">0 kcal</span>
+            <span class="text-xs font-mono font-medium text-zinc-900" id="nutrition-total-cals">0 kcal</span>
             <div class="text-[10px] text-zinc-500" id="nutrition-macro-mini">P: 0g • C: 0g • F: 0g</div>
           </div>
         </div>
@@ -577,24 +654,24 @@
       <!-- Fitness Header Metric Cards -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="fiddy-card p-4">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Total Active Time</span>
-          <span class="text-2xl font-black text-black mt-1 block font-mono" id="fit-stat-min">0 <span class="text-xs text-zinc-500 font-sans">min</span></span>
-          <span class="text-[10px] text-zinc-400 mt-0.5">Target: <span id="fit-stat-target">45</span> min</span>
+          <span class="text-[11px] font-medium text-zinc-500 block">Total Active Time</span>
+          <span class="text-2xl font-semibold text-zinc-950 mt-1 block font-mono tracking-tight" id="fit-stat-min">0 <span class="text-xs text-zinc-500 font-sans font-normal">min</span></span>
+          <span class="text-[11px] text-zinc-400 mt-0.5">Target: <span id="fit-stat-target" class="font-medium text-zinc-600">45</span> min</span>
         </div>
         <div class="fiddy-card p-4">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Calories Burned</span>
-          <span class="text-2xl font-black text-emerald-600 mt-1 block font-mono" id="fit-stat-kcal">0 <span class="text-xs text-zinc-500 font-sans">kcal</span></span>
-          <span class="text-[10px] text-zinc-400 mt-0.5">Estimated output</span>
+          <span class="text-[11px] font-medium text-zinc-500 block">Calories Burned</span>
+          <span class="text-2xl font-semibold text-emerald-600 mt-1 block font-mono tracking-tight" id="fit-stat-kcal">0 <span class="text-xs text-zinc-500 font-sans font-normal">kcal</span></span>
+          <span class="text-[11px] text-zinc-400 mt-0.5">Estimated output</span>
         </div>
         <div class="fiddy-card p-4">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Sessions Completed</span>
-          <span class="text-2xl font-black text-black mt-1 block font-mono" id="fit-stat-sessions">0</span>
-          <span class="text-[10px] text-zinc-400 mt-0.5">Logged today</span>
+          <span class="text-[11px] font-medium text-zinc-500 block">Sessions Completed</span>
+          <span class="text-2xl font-semibold text-zinc-950 mt-1 block font-mono tracking-tight" id="fit-stat-sessions">0</span>
+          <span class="text-[11px] text-zinc-400 mt-0.5">Logged today</span>
         </div>
         <div class="fiddy-card p-4">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Fitness Streak</span>
-          <span class="text-2xl font-black text-emerald-600 mt-1 block font-mono" id="fit-stat-streak">0 <span class="text-xs text-zinc-500 font-sans">days</span></span>
-          <span class="text-[10px] text-zinc-400 mt-0.5">Consistent training</span>
+          <span class="text-[11px] font-medium text-zinc-500 block">Fitness Streak</span>
+          <span class="text-2xl font-semibold text-emerald-600 mt-1 block font-mono tracking-tight" id="fit-stat-streak">0 <span class="text-xs text-zinc-500 font-sans font-normal">days</span></span>
+          <span class="text-[11px] text-zinc-400 mt-0.5">Consistent training</span>
         </div>
       </div>
 
@@ -604,37 +681,37 @@
         <div class="lg:col-span-5 fiddy-card p-5 space-y-4">
           <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
             <div class="flex items-center gap-2">
-              <i data-lucide="timer" class="w-4 h-4 text-black"></i>
-              <h3 class="text-xs font-bold uppercase tracking-wider text-black">Digital Stopwatch & Timer</h3>
+              <i data-lucide="timer" class="w-4 h-4 text-zinc-700"></i>
+              <h3 class="text-xs font-semibold text-zinc-900 tracking-tight">Digital Stopwatch & Timer</h3>
             </div>
             <!-- Mode Switcher -->
-            <div class="flex bg-zinc-100 rounded-lg p-0.5 text-xs font-bold">
-              <button onclick="setStopwatchMode('stopwatch')" id="sw-mode-btn-sw" class="px-2.5 py-1 rounded-md bg-black text-white">Stopwatch</button>
-              <button onclick="setStopwatchMode('hiit')" id="sw-mode-btn-hiit" class="px-2.5 py-1 rounded-md text-zinc-600 hover:text-black">HIIT Interval</button>
+            <div class="flex bg-zinc-100 rounded-lg p-0.5 text-xs">
+              <button onclick="setStopwatchMode('stopwatch')" id="sw-mode-btn-sw" class="px-2.5 py-1 rounded-md bg-zinc-900 text-white font-medium text-xs transition">Stopwatch</button>
+              <button onclick="setStopwatchMode('hiit')" id="sw-mode-btn-hiit" class="px-2.5 py-1 rounded-md text-zinc-600 hover:text-zinc-900 font-medium text-xs transition">HIIT Interval</button>
             </div>
           </div>
 
           <!-- STOPWATCH INTERFACE -->
           <div id="sw-container-stopwatch" class="text-center space-y-4">
-            <div class="py-6 bg-zinc-50 border border-zinc-200 rounded-2xl">
-              <div id="stopwatch-digits" class="font-mono text-5xl font-black tracking-tight text-black">00:00.00</div>
-              <div class="text-[10px] uppercase tracking-widest text-zinc-400 mt-1">MM : SS . MS</div>
+            <div class="py-6 bg-zinc-50/70 border border-zinc-200/80 rounded-2xl">
+              <div id="stopwatch-digits" class="font-mono text-5xl font-semibold tracking-tight text-zinc-950">00:00.00</div>
+              <div class="text-[11px] tracking-wider text-zinc-400 mt-1 font-mono">MM : SS . MS</div>
             </div>
 
-            <div class="flex items-center justify-center gap-3">
-              <button id="sw-btn-toggle" onclick="toggleStopwatch()" class="px-6 py-2.5 bg-black hover:bg-zinc-800 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition">
+            <div class="flex items-center justify-center gap-2.5">
+              <button id="sw-btn-toggle" onclick="toggleStopwatch()" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl flex items-center gap-1.5 transition">
                 <i data-lucide="play" class="w-3.5 h-3.5 fill-white"></i> Start
               </button>
-              <button onclick="lapStopwatch()" class="px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-black font-semibold text-xs rounded-xl border border-zinc-200 transition">
+              <button onclick="lapStopwatch()" class="px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 font-medium text-xs rounded-xl border border-zinc-200 transition">
                 Lap
               </button>
-              <button onclick="resetStopwatch()" class="px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 font-semibold text-xs rounded-xl border border-zinc-200 transition">
+              <button onclick="resetStopwatch()" class="px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 font-medium text-xs rounded-xl border border-zinc-200 transition">
                 Reset
               </button>
             </div>
 
             <!-- Save as workout button -->
-            <button id="sw-save-workout-btn" onclick="saveStopwatchToWorkout()" class="hidden w-full py-2 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5">
+            <button id="sw-save-workout-btn" onclick="saveStopwatchToWorkout()" class="hidden w-full py-2 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 text-xs font-medium rounded-xl transition flex items-center justify-center gap-1.5">
               <i data-lucide="check" class="w-3.5 h-3.5"></i> Save elapsed time as Workout
             </button>
 
@@ -644,35 +721,35 @@
 
           <!-- HIIT INTERVAL INTERFACE -->
           <div id="sw-container-hiit" class="hidden text-center space-y-4">
-            <div id="hiit-status-badge" class="inline-block px-3 py-1 rounded-full text-[11px] font-bold bg-zinc-100 text-zinc-700 uppercase">
+            <div id="hiit-status-badge" class="inline-block px-3 py-1 rounded-full text-[11px] font-medium bg-zinc-100 text-zinc-700">
               Ready
             </div>
 
-            <div id="hiit-screen" class="py-6 bg-zinc-50 border border-zinc-200 rounded-2xl">
-              <div id="hiit-countdown-digits" class="font-mono text-5xl font-black text-black">00:45</div>
-              <div class="text-[11px] text-zinc-500 mt-1">Round <span id="hiit-round-cur">1</span> of <span id="hiit-round-total">5</span></div>
+            <div id="hiit-screen" class="py-6 bg-zinc-50/70 border border-zinc-200/80 rounded-2xl">
+              <div id="hiit-countdown-digits" class="font-mono text-5xl font-semibold text-zinc-950 tracking-tight">00:45</div>
+              <div class="text-[11px] text-zinc-500 mt-1">Round <span id="hiit-round-cur" class="font-medium text-zinc-800">1</span> of <span id="hiit-round-total" class="font-medium text-zinc-800">5</span></div>
             </div>
 
             <div class="grid grid-cols-3 gap-2 text-left">
-              <div class="p-2 bg-zinc-50 border border-zinc-200 rounded-xl">
-                <label class="text-[10px] font-bold text-zinc-400 block uppercase">Work (s)</label>
-                <input type="number" id="hiit-cfg-work" value="45" min="5" max="300" class="w-full bg-transparent font-mono font-bold text-xs text-black outline-none">
+              <div class="p-2 bg-zinc-50/70 border border-zinc-200/80 rounded-xl">
+                <label class="text-[10px] font-medium text-zinc-500 block">Work (s)</label>
+                <input type="number" id="hiit-cfg-work" value="45" min="5" max="300" class="w-full bg-transparent font-mono font-medium text-xs text-zinc-900 outline-none">
               </div>
-              <div class="p-2 bg-zinc-50 border border-zinc-200 rounded-xl">
-                <label class="text-[10px] font-bold text-zinc-400 block uppercase">Rest (s)</label>
-                <input type="number" id="hiit-cfg-rest" value="15" min="5" max="180" class="w-full bg-transparent font-mono font-bold text-xs text-black outline-none">
+              <div class="p-2 bg-zinc-50/70 border border-zinc-200/80 rounded-xl">
+                <label class="text-[10px] font-medium text-zinc-500 block">Rest (s)</label>
+                <input type="number" id="hiit-cfg-rest" value="15" min="5" max="180" class="w-full bg-transparent font-mono font-medium text-xs text-zinc-900 outline-none">
               </div>
-              <div class="p-2 bg-zinc-50 border border-zinc-200 rounded-xl">
-                <label class="text-[10px] font-bold text-zinc-400 block uppercase">Rounds</label>
-                <input type="number" id="hiit-cfg-rounds" value="5" min="1" max="20" class="w-full bg-transparent font-mono font-bold text-xs text-black outline-none">
+              <div class="p-2 bg-zinc-50/70 border border-zinc-200/80 rounded-xl">
+                <label class="text-[10px] font-medium text-zinc-500 block">Rounds</label>
+                <input type="number" id="hiit-cfg-rounds" value="5" min="1" max="20" class="w-full bg-transparent font-mono font-medium text-xs text-zinc-900 outline-none">
               </div>
             </div>
 
-            <div class="flex items-center justify-center gap-3">
-              <button id="hiit-btn-toggle" onclick="toggleHiitTimer()" class="px-6 py-2.5 bg-black hover:bg-zinc-800 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition">
+            <div class="flex items-center justify-center gap-2.5">
+              <button id="hiit-btn-toggle" onclick="toggleHiitTimer()" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl flex items-center gap-1.5 transition">
                 <i data-lucide="play" class="w-3.5 h-3.5 fill-white"></i> Start Routine
               </button>
-              <button onclick="resetHiitTimer()" class="px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 font-semibold text-xs rounded-xl border border-zinc-200 transition">
+              <button onclick="resetHiitTimer()" class="px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 font-medium text-xs rounded-xl border border-zinc-200 transition">
                 Reset
               </button>
             </div>
@@ -683,10 +760,10 @@
         <div class="lg:col-span-7 fiddy-card p-5 space-y-4">
           <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
             <div>
-              <h3 class="text-sm font-bold uppercase tracking-wider text-black">Today's Workout Sessions</h3>
+              <h3 class="text-sm font-semibold tracking-tight text-zinc-900">Today's Workout Sessions</h3>
               <p class="text-xs text-zinc-500">Record sports, badminton, running, or strength training.</p>
             </div>
-            <button onclick="openModal('workout-modal')" class="px-3 py-1.5 bg-black text-white rounded-lg text-xs font-bold hover:bg-zinc-800 flex items-center gap-1.5 transition">
+            <button onclick="openModal('workout-modal')" class="px-3.5 py-1.5 bg-zinc-900 text-white rounded-xl text-xs font-medium hover:bg-zinc-800 flex items-center gap-1.5 transition">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i> Log Workout
             </button>
           </div>
@@ -706,24 +783,24 @@
       <!-- Study Header Metrics -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="fiddy-card p-4">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Deep Work Today</span>
-          <span class="text-2xl font-black text-black mt-1 block font-mono" id="study-stat-hours">0.0 <span class="text-xs text-zinc-500 font-sans">hrs</span></span>
-          <span class="text-[10px] text-zinc-400 mt-0.5">Target: <span id="study-stat-target">3.0</span> hrs</span>
+          <span class="text-[11px] font-medium text-zinc-500 block">Deep Work Today</span>
+          <span class="text-2xl font-semibold text-zinc-950 mt-1 block font-mono tracking-tight" id="study-stat-hours">0.0 <span class="text-xs text-zinc-500 font-sans font-normal">hrs</span></span>
+          <span class="text-[11px] text-zinc-400 mt-0.5">Target: <span id="study-stat-target" class="font-medium text-zinc-600">3.0</span> hrs</span>
         </div>
         <div class="fiddy-card p-4">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Pomodoros Done</span>
-          <span class="text-2xl font-black text-indigo-600 mt-1 block font-mono" id="study-stat-pomos">0</span>
-          <span class="text-[10px] text-zinc-400 mt-0.5">Focus sessions</span>
+          <span class="text-[11px] font-medium text-zinc-500 block">Pomodoros Done</span>
+          <span class="text-2xl font-semibold text-indigo-600 mt-1 block font-mono tracking-tight" id="study-stat-pomos">0</span>
+          <span class="text-[11px] text-zinc-400 mt-0.5">Focus sessions</span>
         </div>
         <div class="fiddy-card p-4">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Active Subjects</span>
-          <span class="text-2xl font-black text-black mt-1 block font-mono" id="study-stat-topics">0</span>
-          <span class="text-[10px] text-zinc-400 mt-0.5">Topics studied</span>
+          <span class="text-[11px] font-medium text-zinc-500 block">Active Subjects</span>
+          <span class="text-2xl font-semibold text-zinc-950 mt-1 block font-mono tracking-tight" id="study-stat-topics">0</span>
+          <span class="text-[11px] text-zinc-400 mt-0.5">Topics studied</span>
         </div>
         <div class="fiddy-card p-4">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">Study Streak</span>
-          <span class="text-2xl font-black text-indigo-600 mt-1 block font-mono" id="study-stat-streak">0 <span class="text-xs text-zinc-500 font-sans">days</span></span>
-          <span class="text-[10px] text-zinc-400 mt-0.5">Focus discipline</span>
+          <span class="text-[11px] font-medium text-zinc-500 block">Study Streak</span>
+          <span class="text-2xl font-semibold text-indigo-600 mt-1 block font-mono tracking-tight" id="study-stat-streak">0 <span class="text-xs text-zinc-500 font-sans font-normal">days</span></span>
+          <span class="text-[11px] text-zinc-400 mt-0.5">Focus discipline</span>
         </div>
       </div>
 
@@ -733,22 +810,22 @@
         <div class="lg:col-span-5 fiddy-card p-5 space-y-4 text-center">
           <div class="flex items-center justify-between text-left border-b border-zinc-100 pb-3">
             <div>
-              <h3 class="text-xs font-bold uppercase tracking-wider text-black">Pomodoro Focus Timer</h3>
-              <span id="pomo-preset-title" class="text-[11px] font-semibold text-zinc-500">Classic (25/5 min)</span>
+              <h3 class="text-xs font-semibold text-zinc-900 tracking-tight">Pomodoro Focus Timer</h3>
+              <span id="pomo-preset-title" class="text-[11px] font-medium text-zinc-500">Classic (25/5 min)</span>
             </div>
             <!-- Preset switcher -->
-            <div class="flex bg-zinc-100 rounded-lg p-0.5 text-xs font-bold">
-              <button onclick="setPomoConfig(25, 5, 'Classic 25/5')" id="pomo-cfg-25" class="px-2 py-1 rounded bg-black text-white">25/5</button>
-              <button onclick="setPomoConfig(50, 10, 'Deep Flow 50/10')" id="pomo-cfg-50" class="px-2 py-1 rounded text-zinc-600 hover:text-black">50/10</button>
-              <button onclick="setPomoConfig(15, 3, 'Sprint 15/3')" id="pomo-cfg-15" class="px-2 py-1 rounded text-zinc-600 hover:text-black">15m</button>
+            <div class="flex bg-zinc-100 rounded-lg p-0.5 text-xs">
+              <button onclick="setPomoConfig(25, 5, 'Classic 25/5')" id="pomo-cfg-25" class="px-2 py-1 rounded-md bg-zinc-900 text-white font-medium text-xs transition">25/5</button>
+              <button onclick="setPomoConfig(50, 10, 'Deep Flow 50/10')" id="pomo-cfg-50" class="px-2 py-1 rounded-md text-zinc-600 hover:text-zinc-900 font-medium text-xs transition">50/10</button>
+              <button onclick="setPomoConfig(15, 3, 'Sprint 15/3')" id="pomo-cfg-15" class="px-2 py-1 rounded-md text-zinc-600 hover:text-zinc-900 font-medium text-xs transition">15m</button>
             </div>
           </div>
 
           <!-- Subject Target -->
-          <div class="text-left bg-zinc-50 p-2.5 rounded-xl border border-zinc-200">
-            <label class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">Target Subject / Topic</label>
+          <div class="text-left bg-zinc-50/70 p-2.5 rounded-xl border border-zinc-200/80">
+            <label class="text-[10px] font-medium text-zinc-500 block mb-1">Target Subject / Topic</label>
             <div class="flex items-center gap-2">
-              <select id="pomo-subject-select" class="flex-1 bg-white border border-zinc-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-black outline-none">
+              <select id="pomo-subject-select" class="flex-1 bg-white border border-zinc-200/80 rounded-xl px-2.5 py-1.5 text-xs font-medium text-zinc-900 outline-none">
                 <option value="Computer Science">Computer Science & Algorithms</option>
                 <option value="Mathematics">Mathematics</option>
                 <option value="System Design">System Architecture</option>
@@ -756,7 +833,7 @@
                 <option value="Language Study">Language & Vocabulary</option>
                 <option value="General Study">General Deep Work</option>
               </select>
-              <button onclick="promptNewSubject()" class="p-1.5 rounded-lg border border-zinc-300 hover:bg-zinc-100 text-zinc-700" title="Add Subject">
+              <button onclick="promptNewSubject()" class="p-1.5 rounded-xl border border-zinc-200/80 hover:bg-zinc-100 text-zinc-700 transition" title="Add Subject">
                 <i data-lucide="plus" class="w-4 h-4"></i>
               </button>
             </div>
@@ -766,22 +843,22 @@
           <div class="relative w-48 h-48 mx-auto my-2 flex items-center justify-center">
             <svg class="w-48 h-48" viewBox="0 0 140 140">
               <circle cx="70" cy="70" r="60" stroke="#f4f4f5" stroke-width="8" fill="none" />
-              <circle id="pomo-dial-circle" cx="70" cy="70" r="60" stroke="#000000" stroke-width="8" 
+              <circle id="pomo-dial-circle" cx="70" cy="70" r="60" stroke="#18181b" stroke-width="8" 
                       fill="none" stroke-linecap="round" stroke-dasharray="376.99" stroke-dashoffset="0" 
                       style="transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.5s ease;" />
             </svg>
             <div class="absolute flex flex-col items-center justify-center">
-              <span id="pomo-time-display" class="font-mono text-3xl font-black text-black">25:00</span>
-              <span id="pomo-mode-label" class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mt-0.5">Focus Block</span>
+              <span id="pomo-time-display" class="font-mono text-3xl font-semibold tracking-tight text-zinc-950">25:00</span>
+              <span id="pomo-mode-label" class="text-[11px] font-medium text-zinc-500 mt-0.5">Focus Block</span>
             </div>
           </div>
 
           <!-- Pomodoro Control Buttons -->
-          <div class="flex items-center justify-center gap-3">
-            <button id="pomo-toggle-btn" onclick="togglePomodoroTimer()" class="px-6 py-2.5 bg-black hover:bg-zinc-800 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition">
+          <div class="flex items-center justify-center gap-2.5">
+            <button id="pomo-toggle-btn" onclick="togglePomodoroTimer()" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl flex items-center gap-1.5 transition">
               <i data-lucide="play" class="w-3.5 h-3.5 fill-white"></i> Start Focus
             </button>
-            <button onclick="resetPomodoroTimer()" class="px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold text-xs rounded-xl border border-zinc-200 transition">
+            <button onclick="resetPomodoroTimer()" class="px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-medium text-xs rounded-xl border border-zinc-200 transition">
               Reset
             </button>
             <button onclick="skipPomodoroPhase()" class="p-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl border border-zinc-200 transition" title="Skip Phase">
@@ -794,7 +871,7 @@
         <div class="lg:col-span-7 space-y-4">
           <!-- Subject Distribution Card -->
           <div class="fiddy-card p-5 space-y-3">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-black">Today's Subject Distribution</h4>
+            <h4 class="text-xs font-semibold text-zinc-900 tracking-tight">Today's Subject Distribution</h4>
             <div id="study-subject-bars" class="space-y-2">
               <!-- Rendered by renderStudySubjectBars() -->
             </div>
@@ -803,8 +880,8 @@
           <!-- Focus Sessions History Card -->
           <div class="fiddy-card p-5 space-y-3">
             <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
-              <h4 class="text-xs font-bold uppercase tracking-wider text-black">Logged Focus Blocks</h4>
-              <button onclick="openModal('manual-study-modal')" class="text-xs text-zinc-500 hover:text-black font-semibold">
+              <h4 class="text-xs font-semibold text-zinc-900 tracking-tight">Logged Focus Blocks</h4>
+              <button onclick="openModal('manual-study-modal')" class="text-xs text-zinc-500 hover:text-zinc-900 font-medium transition">
                 + Manual Log
               </button>
             </div>
@@ -821,12 +898,12 @@
     <!-- ----------------- VIEW 5: GRAPHICAL ANALYTICS (CHART.JS) ----------------- -->
     <div id="view-analytics" class="fiddy-view hidden space-y-6">
 
-      <div class="flex items-center justify-between border-b border-zinc-200 pb-3">
+      <div class="flex items-center justify-between border-b border-zinc-200/80 pb-3">
         <div>
-          <h2 class="text-lg font-black text-black">Visual Analytics & Performance Breakdown</h2>
+          <h2 class="text-lg font-semibold tracking-tight text-zinc-950">Visual Analytics & Performance Breakdown</h2>
           <p class="text-xs text-zinc-500">Interactive charts comparing macronutrients, calorie balance, and weekly routine splits.</p>
         </div>
-        <button onclick="updateAllCharts()" class="p-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 text-zinc-700" title="Refresh Charts">
+        <button onclick="updateAllCharts()" class="p-2 rounded-xl border border-zinc-200/80 hover:bg-zinc-100 text-zinc-700 transition" title="Refresh Charts">
           <i data-lucide="refresh-cw" class="w-4 h-4"></i>
         </button>
       </div>
@@ -837,8 +914,8 @@
         <!-- Chart 1: Macronutrient Distribution (Doughnut Chart) -->
         <div class="lg:col-span-5 fiddy-card p-5 space-y-3">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-black">Today's Macro Breakdown</h3>
-            <span class="text-xs font-mono font-bold text-zinc-500" id="chart-cals-center-badge">0 kcal</span>
+            <h3 class="text-xs font-semibold text-zinc-900 tracking-tight">Today's Macro Breakdown</h3>
+            <span class="text-xs font-mono font-medium text-zinc-500" id="chart-cals-center-badge">0 kcal</span>
           </div>
           <p class="text-[11px] text-zinc-400">Actual ingested ratio of Protein, Carbohydrates, and Fats.</p>
 
@@ -848,17 +925,17 @@
           </div>
 
           <div class="grid grid-cols-3 gap-2 pt-2 text-center text-xs border-t border-zinc-100">
-            <div class="p-1.5 bg-emerald-50 rounded-lg text-emerald-800 font-semibold" id="chart-legend-p">P: 0g</div>
-            <div class="p-1.5 bg-cyan-50 rounded-lg text-cyan-800 font-semibold" id="chart-legend-c">C: 0g</div>
-            <div class="p-1.5 bg-amber-50 rounded-lg text-amber-800 font-semibold" id="chart-legend-f">F: 0g</div>
+            <div class="p-1.5 bg-emerald-50 rounded-xl text-emerald-800 font-medium" id="chart-legend-p">P: 0g</div>
+            <div class="p-1.5 bg-cyan-50 rounded-xl text-cyan-800 font-medium" id="chart-legend-c">C: 0g</div>
+            <div class="p-1.5 bg-amber-50 rounded-xl text-amber-800 font-medium" id="chart-legend-f">F: 0g</div>
           </div>
         </div>
 
         <!-- Chart 2: Weekly Activity Split (Grouped Bar Chart) -->
         <div class="lg:col-span-7 fiddy-card p-5 space-y-3">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-black">Weekly Fitness vs. Study Activity</h3>
-            <span class="text-xs text-zinc-400 font-mono">Last 7 Days</span>
+            <h3 class="text-xs font-semibold text-zinc-900 tracking-tight">Weekly Fitness vs. Study Activity</h3>
+            <span class="text-xs text-zinc-400 font-mono font-medium">Last 7 Days</span>
           </div>
           <p class="text-[11px] text-zinc-400">Comparison of daily Workout minutes (Emerald) vs. Study minutes (Indigo).</p>
 
@@ -873,8 +950,8 @@
       <!-- Chart 3: Calorie Balance & Intake Trend (Line Chart) -->
       <div class="fiddy-card p-5 space-y-3">
         <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-black">7-Day Calorie Intake vs. Target Goal</h3>
-          <span class="text-xs font-mono text-zinc-500">Goal: <span id="chart-line-goal-txt">2,200</span> kcal</span>
+          <h3 class="text-xs font-semibold text-zinc-900 tracking-tight">7-Day Calorie Intake vs. Target Goal</h3>
+          <span class="text-xs font-mono text-zinc-500">Goal: <span id="chart-line-goal-txt" class="font-medium text-zinc-800">2,200</span> kcal</span>
         </div>
         <p class="text-[11px] text-zinc-400">Track calorie consistency against your baseline target line over the past week.</p>
 
@@ -890,26 +967,26 @@
 
 
   <!-- ================= MOBILE APP-LIKE BOTTOM NAVIGATION BAR ================= -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-zinc-200 px-2 py-2 flex items-center justify-around">
-    <button onclick="switchView('dashboard')" id="mob-btn-dashboard" class="flex flex-col items-center gap-1 text-black py-1 px-3 rounded-xl transition">
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-zinc-200/80 px-2 py-1.5 flex items-center justify-around">
+    <button onclick="switchView('dashboard')" id="mob-btn-dashboard" class="flex flex-col items-center gap-1 text-zinc-950 py-1 px-3 rounded-xl transition">
       <i data-lucide="layout-grid" class="w-5 h-5"></i>
-      <span class="text-[10px] font-bold">Dashboard</span>
+      <span class="text-[10px] font-medium">Dashboard</span>
     </button>
     <button onclick="switchView('nutrition')" id="mob-btn-nutrition" class="flex flex-col items-center gap-1 text-zinc-400 py-1 px-3 rounded-xl transition">
       <i data-lucide="utensils" class="w-5 h-5"></i>
-      <span class="text-[10px] font-bold">Nutrition</span>
+      <span class="text-[10px] font-medium">Nutrition</span>
     </button>
     <button onclick="switchView('fitness')" id="mob-btn-fitness" class="flex flex-col items-center gap-1 text-zinc-400 py-1 px-3 rounded-xl transition">
       <i data-lucide="dumbbell" class="w-5 h-5"></i>
-      <span class="text-[10px] font-bold">Fitness</span>
+      <span class="text-[10px] font-medium">Fitness</span>
     </button>
     <button onclick="switchView('study')" id="mob-btn-study" class="flex flex-col items-center gap-1 text-zinc-400 py-1 px-3 rounded-xl transition">
       <i data-lucide="brain" class="w-5 h-5"></i>
-      <span class="text-[10px] font-bold">Study</span>
+      <span class="text-[10px] font-medium">Study</span>
     </button>
     <button onclick="switchView('analytics')" id="mob-btn-analytics" class="flex flex-col items-center gap-1 text-zinc-400 py-1 px-3 rounded-xl transition">
       <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
-      <span class="text-[10px] font-bold">Analytics</span>
+      <span class="text-[10px] font-medium">Analytics</span>
     </button>
   </nav>
 
@@ -918,44 +995,47 @@
 
   <!-- 1. Settings & Gemini API Key Modal -->
   <div id="settings-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-    <div class="modal-content bg-white border border-zinc-300 rounded-2xl w-full max-w-md p-5 sm:p-6 space-y-4 shadow-xl">
+    <div class="modal-content bg-white border border-zinc-200/80 rounded-2xl w-full max-w-md p-5 sm:p-6 space-y-4 shadow-xl">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
         <div class="flex items-center gap-2">
-          <i data-lucide="key" class="w-5 h-5 text-black"></i>
-          <h3 class="text-sm font-black text-black">Settings & Gemini API Key</h3>
+          <i data-lucide="key" class="w-4 h-4 text-zinc-700"></i>
+          <h3 class="text-sm font-semibold tracking-tight text-zinc-900">Settings & Gemini AI Engine</h3>
         </div>
-        <button onclick="closeModal('settings-modal')" class="p-1 text-zinc-400 hover:text-black">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <button onclick="closeModal('settings-modal')" class="p-1 text-zinc-400 hover:text-zinc-900 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
       <div class="space-y-3">
-        <p class="text-xs text-zinc-600">Enter your Google Gemini API key to activate AI Indian Food & Nutrition Recognition. Your key is stored locally in your browser's <code class="bg-zinc-100 px-1 py-0.5 rounded font-mono">localStorage</code>.</p>
+        <p class="text-xs text-zinc-500 leading-relaxed">FIDDY is equipped with Google Gemini for AI Indian Food & Nutrition Recognition. In the Android app, Firebase AI Logic powers recognition seamlessly. You can also specify an optional Gemini API key for standalone web use.</p>
         <div>
-          <label class="text-xs font-bold uppercase tracking-wider text-zinc-700 block mb-1">Gemini API Key</label>
+          <label class="text-xs font-medium text-zinc-700 block mb-1">Gemini API Key (Web Fallback)</label>
           <input type="password" id="input-gemini-key" placeholder="AIzaSy..." 
-                 class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2.5 text-xs font-mono text-black outline-none">
+                 class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono text-zinc-900 outline-none transition">
         </div>
-        <p class="text-[11px] text-zinc-400">Get a free key from Google AI Studio at <a href="https://aistudio.google.com/" target="_blank" class="text-black underline font-semibold">aistudio.google.com</a>.</p>
+        <p class="text-[11px] text-zinc-400">Get a free key from Google AI Studio at <a href="https://aistudio.google.com/" target="_blank" class="text-zinc-900 underline font-medium">aistudio.google.com</a>.</p>
       </div>
 
       <!-- Backup Export/Import Options -->
       <div class="pt-3 border-t border-zinc-100 space-y-2">
-        <span class="text-xs font-bold text-black uppercase tracking-wider block">Data Backup</span>
+        <span class="text-xs font-medium text-zinc-700 block">Data Backup & Reset</span>
         <div class="flex items-center gap-2">
-          <button onclick="exportFiddyData()" class="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-black text-xs font-bold rounded-xl border border-zinc-200 flex items-center justify-center gap-1.5 transition">
+          <button onclick="exportFiddyData()" class="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-medium rounded-xl border border-zinc-200/80 flex items-center justify-center gap-1.5 transition">
             <i data-lucide="download" class="w-3.5 h-3.5"></i> Export JSON
           </button>
-          <label class="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-black text-xs font-bold rounded-xl border border-zinc-200 flex items-center justify-center gap-1.5 cursor-pointer transition">
+          <label class="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-medium rounded-xl border border-zinc-200/80 flex items-center justify-center gap-1.5 cursor-pointer transition">
             <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import JSON
             <input type="file" accept=".json" class="hidden" onchange="importFiddyData(event)">
           </label>
         </div>
+        <button type="button" onclick="resetAllFiddyData()" class="w-full py-2 mt-1 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-medium rounded-xl border border-rose-200 flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Reset All Data
+        </button>
       </div>
 
       <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
-        <button type="button" onclick="closeModal('settings-modal')" class="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-black">Close</button>
-        <button type="button" onclick="saveGeminiApiKey()" class="px-5 py-2.5 bg-black hover:bg-zinc-800 text-white font-bold text-xs rounded-xl transition">
+        <button type="button" onclick="closeModal('settings-modal')" class="px-4 py-2 text-xs font-medium text-zinc-500 hover:text-zinc-900 transition">Close</button>
+        <button type="button" onclick="saveGeminiApiKey()" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl transition">
           Save Settings
         </button>
       </div>
@@ -965,38 +1045,38 @@
 
   <!-- 2. Nutrition Goals & Targets Modal -->
   <div id="goal-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-    <div class="modal-content bg-white border border-zinc-300 rounded-2xl w-full max-w-lg p-5 sm:p-6 space-y-4 shadow-xl">
+    <div class="modal-content bg-white border border-zinc-200/80 rounded-2xl w-full max-w-lg p-5 sm:p-6 space-y-4 shadow-xl">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
         <div class="flex items-center gap-2">
-          <i data-lucide="sliders" class="w-5 h-5 text-black"></i>
-          <h3 class="text-sm font-black text-black">Nutrition Target Palette & Daily Goals</h3>
+          <i data-lucide="sliders" class="w-4 h-4 text-zinc-700"></i>
+          <h3 class="text-sm font-semibold tracking-tight text-zinc-900">Nutrition Targets & Daily Goals</h3>
         </div>
-        <button onclick="closeModal('goal-modal')" class="p-1 text-zinc-400 hover:text-black">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <button onclick="closeModal('goal-modal')" class="p-1 text-zinc-400 hover:text-zinc-900 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
       <form onsubmit="saveNutritionGoals(event)" class="space-y-4">
         <!-- Calorie Target -->
         <div>
-          <label class="text-xs font-bold uppercase tracking-wider text-zinc-700 block mb-1">Daily Calorie Target (kcal)</label>
+          <label class="text-xs font-medium text-zinc-700 block mb-1">Daily Calorie Target (kcal)</label>
           <input type="number" id="input-goal-cals" min="800" max="8000" step="50" required 
-                 class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-sm font-mono font-bold text-black outline-none"
+                 class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-sm font-mono font-medium text-zinc-900 outline-none transition"
                  oninput="recalcMacrosFromRatio()">
         </div>
 
         <!-- Preset Quick Selectors -->
         <div>
-          <label class="text-[11px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">One-Tap Macro Ratio Presets</label>
+          <label class="text-[11px] font-medium text-zinc-500 block mb-1">One-Tap Macro Ratio Presets</label>
           <div class="grid grid-cols-3 gap-2 text-xs">
-            <button type="button" onclick="applyMacroPreset(0.25, 0.50, 0.25, 'Balanced')" class="p-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-800 font-bold transition text-center">
-              Balanced<br><span class="text-[10px] font-normal text-zinc-500">25P / 50C / 25F</span>
+            <button type="button" onclick="applyMacroPreset(0.25, 0.50, 0.25, 'Balanced')" class="p-2 rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200/80 text-zinc-800 font-medium transition text-center">
+              Balanced<br><span class="text-[10px] text-zinc-500 font-normal">25P / 50C / 25F</span>
             </button>
-            <button type="button" onclick="applyMacroPreset(0.35, 0.45, 0.20, 'Athletic')" class="p-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-800 font-bold transition text-center">
-              Athletic<br><span class="text-[10px] font-normal text-zinc-500">35P / 45C / 20F</span>
+            <button type="button" onclick="applyMacroPreset(0.35, 0.45, 0.20, 'Athletic')" class="p-2 rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200/80 text-zinc-800 font-medium transition text-center">
+              Athletic<br><span class="text-[10px] text-zinc-500 font-normal">35P / 45C / 20F</span>
             </button>
-            <button type="button" onclick="applyMacroPreset(0.20, 0.60, 0.20, 'Endurance')" class="p-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-800 font-bold transition text-center">
-              Endurance<br><span class="text-[10px] font-normal text-zinc-500">20P / 60C / 20F</span>
+            <button type="button" onclick="applyMacroPreset(0.20, 0.60, 0.20, 'Endurance')" class="p-2 rounded-xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-200/80 text-zinc-800 font-medium transition text-center">
+              Endurance<br><span class="text-[10px] text-zinc-500 font-normal">20P / 60C / 20F</span>
             </button>
           </div>
         </div>
@@ -1004,39 +1084,39 @@
         <!-- Target Gram Inputs -->
         <div class="grid grid-cols-3 gap-3">
           <div>
-            <label class="text-xs font-bold text-emerald-700 block mb-1">Protein (g)</label>
+            <label class="text-xs font-medium text-emerald-700 block mb-1">Protein (g)</label>
             <input type="number" id="input-goal-protein" min="20" max="400" required 
-                   class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-xs font-mono font-bold text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
           <div>
-            <label class="text-xs font-bold text-cyan-700 block mb-1">Carbs (g)</label>
+            <label class="text-xs font-medium text-cyan-700 block mb-1">Carbs (g)</label>
             <input type="number" id="input-goal-carbs" min="20" max="800" required 
-                   class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-xs font-mono font-bold text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
           <div>
-            <label class="text-xs font-bold text-amber-700 block mb-1">Fat (g)</label>
+            <label class="text-xs font-medium text-amber-700 block mb-1">Fat (g)</label>
             <input type="number" id="input-goal-fats" min="10" max="300" required 
-                   class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-xs font-mono font-bold text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
         </div>
 
         <!-- Routine Target Benchmarks -->
         <div class="grid grid-cols-2 gap-3 pt-2 border-t border-zinc-100">
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Daily Workout Goal (min)</label>
+            <label class="text-xs font-medium text-zinc-700 block mb-1">Daily Workout Goal (min)</label>
             <input type="number" id="input-goal-fit-min" min="10" max="240" required 
-                   class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-xs font-mono font-bold text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Daily Study Target (hours)</label>
+            <label class="text-xs font-medium text-zinc-700 block mb-1">Daily Study Target (hours)</label>
             <input type="number" id="input-goal-study-hrs" min="0.5" max="16" step="0.5" required 
-                   class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-xs font-mono font-bold text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
         </div>
 
         <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
-          <button type="button" onclick="closeModal('goal-modal')" class="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-black">Cancel</button>
-          <button type="submit" class="px-5 py-2.5 bg-black hover:bg-zinc-800 text-white font-bold text-xs rounded-xl transition">
+          <button type="button" onclick="closeModal('goal-modal')" class="px-4 py-2 text-xs font-medium text-zinc-500 hover:text-zinc-900 transition">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl transition">
             Save Targets
           </button>
         </div>
@@ -1047,48 +1127,48 @@
 
   <!-- 3. Manual Meal Modal (Fallback when offline) -->
   <div id="manual-meal-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-    <div class="modal-content bg-white border border-zinc-300 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
+    <div class="modal-content bg-white border border-zinc-200/80 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
-        <h3 class="text-sm font-black text-black">Log Food Entry Manually</h3>
-        <button onclick="closeModal('manual-meal-modal')" class="p-1 text-zinc-400 hover:text-black">
+        <h3 class="text-sm font-semibold tracking-tight text-zinc-900">Log Food Entry Manually</h3>
+        <button onclick="closeModal('manual-meal-modal')" class="p-1 text-zinc-400 hover:text-zinc-900 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <form onsubmit="handleManualMealSubmit(event)" class="space-y-3">
         <div>
-          <label class="text-xs font-bold text-zinc-700 block mb-1">Dish Name</label>
+          <label class="text-xs font-medium text-zinc-700 block mb-1">Dish Name</label>
           <input type="text" id="manual-dish-name" required placeholder="e.g. 2 Parathas with curd" 
-                 class="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs text-black outline-none">
+                 class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs text-zinc-900 outline-none transition">
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Calories (kcal)</label>
+            <label class="text-xs font-medium text-zinc-700 block mb-1">Calories (kcal)</label>
             <input type="number" id="manual-dish-cals" required min="0" placeholder="350" 
-                   class="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs font-mono text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
           <div>
-            <label class="text-xs font-bold text-emerald-700 block mb-1">Protein (g)</label>
+            <label class="text-xs font-medium text-emerald-700 block mb-1">Protein (g)</label>
             <input type="number" id="manual-dish-pro" required min="0" placeholder="12" 
-                   class="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs font-mono text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-xs font-bold text-cyan-700 block mb-1">Carbs (g)</label>
+            <label class="text-xs font-medium text-cyan-700 block mb-1">Carbs (g)</label>
             <input type="number" id="manual-dish-carbs" required min="0" placeholder="45" 
-                   class="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs font-mono text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
           <div>
-            <label class="text-xs font-bold text-amber-700 block mb-1">Fat (g)</label>
+            <label class="text-xs font-medium text-amber-700 block mb-1">Fat (g)</label>
             <input type="number" id="manual-dish-fats" required min="0" placeholder="10" 
-                   class="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs font-mono text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
         </div>
 
         <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
-          <button type="button" onclick="closeModal('manual-meal-modal')" class="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-black">Cancel</button>
-          <button type="submit" class="px-5 py-2.5 bg-black hover:bg-zinc-800 text-white font-bold text-xs rounded-xl transition">
+          <button type="button" onclick="closeModal('manual-meal-modal')" class="px-4 py-2 text-xs font-medium text-zinc-500 hover:text-zinc-900 transition">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl transition">
             Save Dish
           </button>
         </div>
@@ -1099,18 +1179,18 @@
 
   <!-- 4. Log Workout Session Modal -->
   <div id="workout-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-    <div class="modal-content bg-white border border-zinc-300 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
+    <div class="modal-content bg-white border border-zinc-200/80 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
-        <h3 class="text-sm font-black text-black">Log Workout Activity</h3>
-        <button onclick="closeModal('workout-modal')" class="p-1 text-zinc-400 hover:text-black">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <h3 class="text-sm font-semibold tracking-tight text-zinc-900">Log Workout Activity</h3>
+        <button onclick="closeModal('workout-modal')" class="p-1 text-zinc-400 hover:text-zinc-900 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
       <form onsubmit="handleWorkoutSubmit(event)" class="space-y-3">
         <div>
-          <label class="text-xs font-bold text-zinc-700 block mb-1">Activity Type</label>
-          <select id="workout-type" class="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs font-bold text-black outline-none">
+          <label class="text-xs font-medium text-zinc-700 block mb-1">Activity Type</label>
+          <select id="workout-type" class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-medium text-zinc-900 outline-none transition">
             <option value="Badminton / Sport">Badminton / Racket Sport</option>
             <option value="Running / Cardio">Running / Outdoor Cardio</option>
             <option value="Gym / Strength">Gym / Strength Training</option>
@@ -1121,13 +1201,13 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Duration (minutes)</label>
+            <label class="text-xs font-medium text-zinc-700 block mb-1">Duration (minutes)</label>
             <input type="number" id="workout-duration" required min="1" max="600" value="45" 
-                   class="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
           <div>
-            <label class="text-xs font-bold text-zinc-700 block mb-1">Intensity</label>
-            <select id="workout-intensity" class="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs text-black outline-none">
+            <label class="text-xs font-medium text-zinc-700 block mb-1">Intensity</label>
+            <select id="workout-intensity" class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-medium text-zinc-900 outline-none transition">
               <option value="Medium">Medium</option>
               <option value="High" selected>High Effort</option>
               <option value="Low">Low / Recovery</option>
@@ -1136,20 +1216,20 @@
         </div>
 
         <div>
-          <label class="text-xs font-bold text-zinc-700 block mb-1">Calories Burned (optional)</label>
+          <label class="text-xs font-medium text-zinc-700 block mb-1">Calories Burned (optional)</label>
           <input type="number" id="workout-cals" placeholder="e.g. 350" 
-                 class="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs font-mono text-black outline-none">
+                 class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
         </div>
 
         <div>
-          <label class="text-xs font-bold text-zinc-700 block mb-1">Notes / Sets / Score</label>
+          <label class="text-xs font-medium text-zinc-700 block mb-1">Notes / Sets / Score</label>
           <textarea id="workout-notes" placeholder="e.g. 3 intense badminton sets, 4x8 squats, or 5km run at 5:10 pace" 
-                    class="w-full h-16 bg-zinc-50 border border-zinc-300 rounded-xl p-2.5 text-xs text-black outline-none resize-none"></textarea>
+                    class="w-full h-16 bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl p-2.5 text-xs text-zinc-900 outline-none resize-none transition"></textarea>
         </div>
 
         <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
-          <button type="button" onclick="closeModal('workout-modal')" class="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-black">Cancel</button>
-          <button type="submit" class="px-5 py-2.5 bg-black hover:bg-zinc-800 text-white font-bold text-xs rounded-xl transition">
+          <button type="button" onclick="closeModal('workout-modal')" class="px-4 py-2 text-xs font-medium text-zinc-500 hover:text-zinc-900 transition">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl transition">
             Save Session
           </button>
         </div>
@@ -1160,18 +1240,18 @@
 
   <!-- 5. Manual Study Session Modal -->
   <div id="manual-study-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-    <div class="modal-content bg-white border border-zinc-300 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
+    <div class="modal-content bg-white border border-zinc-200/80 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
-        <h3 class="text-sm font-black text-black">Log Study Session</h3>
-        <button onclick="closeModal('manual-study-modal')" class="p-1 text-zinc-400 hover:text-black">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <h3 class="text-sm font-semibold tracking-tight text-zinc-900">Log Study Session</h3>
+        <button onclick="closeModal('manual-study-modal')" class="p-1 text-zinc-400 hover:text-zinc-900 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
       <form onsubmit="handleStudySubmit(event)" class="space-y-3">
         <div>
-          <label class="text-xs font-bold text-zinc-700 block mb-1">Subject</label>
-          <select id="study-subject-input" class="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs font-bold text-black outline-none">
+          <label class="text-xs font-medium text-zinc-700 block mb-1">Subject</label>
+          <select id="study-subject-input" class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-medium text-zinc-900 outline-none transition">
             <option value="Computer Science">Computer Science & Algorithms</option>
             <option value="Mathematics">Mathematics</option>
             <option value="System Design">System Architecture</option>
@@ -1182,20 +1262,20 @@
         </div>
 
         <div>
-          <label class="text-xs font-bold text-zinc-700 block mb-1">Duration (minutes)</label>
+          <label class="text-xs font-medium text-zinc-700 block mb-1">Duration (minutes)</label>
           <input type="number" id="study-duration-input" required min="5" max="600" value="50" 
-                 class="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-black outline-none">
+                 class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
         </div>
 
         <div>
-          <label class="text-xs font-bold text-zinc-700 block mb-1">Key Takeaways & Notes</label>
+          <label class="text-xs font-medium text-zinc-700 block mb-1">Key Takeaways & Notes</label>
           <textarea id="study-notes-input" placeholder="Formulas, algorithm problem sets, or chapter summaries..." 
-                    class="w-full h-16 bg-zinc-50 border border-zinc-300 rounded-xl p-2.5 text-xs text-black outline-none resize-none"></textarea>
+                    class="w-full h-16 bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl p-2.5 text-xs text-zinc-900 outline-none resize-none transition"></textarea>
         </div>
 
         <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100">
-          <button type="button" onclick="closeModal('manual-study-modal')" class="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-black">Cancel</button>
-          <button type="submit" class="px-5 py-2.5 bg-black hover:bg-zinc-800 text-white font-bold text-xs rounded-xl transition">
+          <button type="button" onclick="closeModal('manual-study-modal')" class="px-4 py-2 text-xs font-medium text-zinc-500 hover:text-zinc-900 transition">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl transition">
             Save Focus Block
           </button>
         </div>
@@ -1206,19 +1286,19 @@
 
   <!-- 6. Initial Onboarding & BMR/Macro Profile Modal -->
   <div id="onboarding-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="modal-content bg-white border border-zinc-300 rounded-2xl w-full max-w-lg p-5 sm:p-6 space-y-4 shadow-2xl my-auto">
+    <div class="modal-content bg-white border border-zinc-200/80 rounded-2xl w-full max-w-lg p-5 sm:p-6 space-y-4 shadow-2xl my-auto">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
         <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold">
+          <div class="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-medium">
             <i data-lucide="calculator" class="w-4 h-4"></i>
           </div>
           <div>
-            <h3 class="text-sm font-black text-black">BMR & Nutrition Target Setup</h3>
+            <h3 class="text-sm font-semibold tracking-tight text-zinc-900">BMR & Nutrition Target Setup</h3>
             <p class="text-[11px] text-zinc-500">Mifflin-St Jeor metabolic calculation for your daily routine.</p>
           </div>
         </div>
-        <button type="button" onclick="closeModal('onboarding-modal')" class="p-1 text-zinc-400 hover:text-black">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <button type="button" onclick="closeModal('onboarding-modal')" class="p-1 text-zinc-400 hover:text-zinc-900 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
@@ -1226,13 +1306,13 @@
         <!-- Age & Gender -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-xs font-bold uppercase tracking-wider text-zinc-700 block mb-1">Age</label>
+            <label class="text-xs font-medium text-zinc-700 block mb-1">Age</label>
             <input type="number" id="onboard-age" required min="10" max="100" value="25"
-                   class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-xs font-mono font-bold text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
           <div>
-            <label class="text-xs font-bold uppercase tracking-wider text-zinc-700 block mb-1">Gender</label>
-            <select id="onboard-gender" class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-xs font-bold text-black outline-none">
+            <label class="text-xs font-medium text-zinc-700 block mb-1">Gender</label>
+            <select id="onboard-gender" class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-medium text-zinc-900 outline-none transition">
               <option value="male" selected>Male (+5 offset)</option>
               <option value="female">Female (-161 offset)</option>
             </select>
@@ -1242,21 +1322,21 @@
         <!-- Weight (kg) & Height (cm) -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-xs font-bold uppercase tracking-wider text-zinc-700 block mb-1">Weight (kg)</label>
+            <label class="text-xs font-medium text-zinc-700 block mb-1">Weight (kg)</label>
             <input type="number" id="onboard-weight" required min="30" max="300" step="0.5" value="70"
-                   class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-xs font-mono font-bold text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
           <div>
-            <label class="text-xs font-bold uppercase tracking-wider text-zinc-700 block mb-1">Height (cm)</label>
+            <label class="text-xs font-medium text-zinc-700 block mb-1">Height (cm)</label>
             <input type="number" id="onboard-height" required min="100" max="250" value="175"
-                   class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-xs font-mono font-bold text-black outline-none">
+                   class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-mono font-medium text-zinc-900 outline-none transition">
           </div>
         </div>
 
         <!-- Activity Level -->
         <div>
-          <label class="text-xs font-bold uppercase tracking-wider text-zinc-700 block mb-1">Activity Level</label>
-          <select id="onboard-activity" class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-xs font-medium text-black outline-none">
+          <label class="text-xs font-medium text-zinc-700 block mb-1">Activity Level</label>
+          <select id="onboard-activity" class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-medium text-zinc-900 outline-none transition">
             <option value="1.2">Sedentary (Desk job, little or no exercise - 1.2x)</option>
             <option value="1.375">Light (Light exercise/sports 1-3 days/week - 1.375x)</option>
             <option value="1.55" selected>Moderate (Training / badminton 3-5 days/week - 1.55x)</option>
@@ -1268,16 +1348,16 @@
         <!-- Primary Goal & Protein Preference -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="text-xs font-bold uppercase tracking-wider text-zinc-700 block mb-1">Primary Goal</label>
-            <select id="onboard-goal" class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-xs font-bold text-black outline-none">
+            <label class="text-xs font-medium text-zinc-700 block mb-1">Primary Goal</label>
+            <select id="onboard-goal" class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-medium text-zinc-900 outline-none transition">
               <option value="maintain">Maintain Weight (0 kcal)</option>
               <option value="cut" selected>Fat Loss / Cut (-300 kcal)</option>
               <option value="bulk">Lean Bulk / Gain (+300 kcal)</option>
             </select>
           </div>
           <div>
-            <label class="text-xs font-bold uppercase tracking-wider text-zinc-700 block mb-1">Protein Preference</label>
-            <select id="onboard-protein-pref" class="w-full bg-zinc-50 border border-zinc-300 focus:border-black rounded-xl px-3 py-2 text-xs font-bold text-black outline-none">
+            <label class="text-xs font-medium text-zinc-700 block mb-1">Protein Preference</label>
+            <select id="onboard-protein-pref" class="w-full bg-zinc-50/70 border border-zinc-200/80 focus:border-zinc-900 rounded-xl px-3 py-2 text-xs font-medium text-zinc-900 outline-none transition">
               <option value="1.6">Moderate (1.6g / kg)</option>
               <option value="2.0" selected>Athletic (2.0g / kg)</option>
               <option value="2.2">High Protein (2.2g / kg)</option>
@@ -1286,31 +1366,31 @@
         </div>
 
         <!-- Realtime Calculated Preview Box -->
-        <div id="onboard-calc-preview" class="p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl space-y-2">
+        <div id="onboard-calc-preview" class="p-3.5 bg-zinc-50/70 border border-zinc-200/80 rounded-xl space-y-2">
           <div class="flex items-center justify-between text-xs">
-            <span class="text-zinc-500 font-semibold">BMR / Base Metabolic Rate:</span>
-            <span id="preview-bmr" class="font-mono font-bold text-black">1650 kcal</span>
+            <span class="text-zinc-500 font-medium">BMR / Base Metabolic Rate:</span>
+            <span id="preview-bmr" class="font-mono font-medium text-zinc-900">1650 kcal</span>
           </div>
           <div class="flex items-center justify-between text-xs">
-            <span class="text-zinc-500 font-semibold">TDEE Maintenance:</span>
-            <span id="preview-tdee" class="font-mono font-bold text-black">2558 kcal</span>
+            <span class="text-zinc-500 font-medium">TDEE Maintenance:</span>
+            <span id="preview-tdee" class="font-mono font-medium text-zinc-900">2558 kcal</span>
           </div>
-          <div class="flex items-center justify-between text-xs border-t border-zinc-200 pt-1.5">
-            <span class="text-black font-bold">Daily Target Calories:</span>
-            <span id="preview-target-cals" class="font-mono font-extrabold text-sm text-black">2258 kcal</span>
+          <div class="flex items-center justify-between text-xs border-t border-zinc-200/80 pt-1.5">
+            <span class="text-zinc-900 font-medium">Daily Target Calories:</span>
+            <span id="preview-target-cals" class="font-mono font-semibold text-sm text-zinc-950">2258 kcal</span>
           </div>
           <div class="grid grid-cols-3 gap-2 pt-1 text-center font-mono text-[11px]">
-            <div class="p-1.5 bg-emerald-50 rounded-lg text-emerald-800 font-bold" id="preview-macro-p">P: 140g</div>
-            <div class="p-1.5 bg-cyan-50 rounded-lg text-cyan-800 font-bold" id="preview-macro-c">C: 260g</div>
-            <div class="p-1.5 bg-amber-50 rounded-lg text-amber-800 font-bold" id="preview-macro-f">F: 63g</div>
+            <div class="p-1.5 bg-emerald-50 rounded-xl text-emerald-800 font-medium" id="preview-macro-p">P: 140g</div>
+            <div class="p-1.5 bg-cyan-50 rounded-xl text-cyan-800 font-medium" id="preview-macro-c">C: 260g</div>
+            <div class="p-1.5 bg-amber-50 rounded-xl text-amber-800 font-medium" id="preview-macro-f">F: 63g</div>
           </div>
         </div>
 
         <div class="flex items-center justify-between pt-2 border-t border-zinc-100">
-          <button type="button" onclick="closeModal('onboarding-modal')" class="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-black">
+          <button type="button" onclick="closeModal('onboarding-modal')" class="px-4 py-2 text-xs font-medium text-zinc-500 hover:text-zinc-900 transition">
             Skip for Now
           </button>
-          <button type="submit" class="px-5 py-2.5 bg-black hover:bg-zinc-800 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5">
+          <button type="submit" class="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-xs rounded-xl transition flex items-center gap-1.5">
             <i data-lucide="check" class="w-3.5 h-3.5"></i>
             <span>Save & Apply Targets</span>
           </button>
@@ -1330,7 +1410,8 @@
        FIDDY HABIT & PERFORMANCE TRACKER ENGINE
        ========================================================== */
 
-    const FIDDY_STORAGE_KEY = 'fiddy_app_state_v2';
+    const FIDDY_STORAGE_KEY = 'fiddy_app_state_v3';
+    const START_DATE_STORAGE = 'fiddy_start_date';
     const GEMINI_KEY_STORAGE = 'fiddy_gemini_api_key';
 
     // Onboarding & Profile Storage Keys
@@ -1345,32 +1426,38 @@
     const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
     let currentUser = null;
 
+    function createEmptyFiddyState() {
+      return {
+        selectedDate: getTodayString(),
+        goals: {
+          calories: 2200,
+          protein: 130, // grams
+          carbs: 250,   // grams
+          fats: 65,     // grams
+          workoutMin: 45,
+          studyHours: 3.0
+        },
+        habits: [
+          { id: 'fit_drill', title: 'Daily Workout Session (Badminton/Run/Gym)', category: 'fitness' },
+          { id: 'fit_stretch', title: 'Mobility, Hip Flexor & Stretch', category: 'fitness' },
+          { id: 'study_focus', title: 'Complete 1+ Deep Work Focus Block', category: 'study' },
+          { id: 'study_review', title: 'Review Syllabus Notes & Formulas', category: 'study' },
+          { id: 'diet_clean', title: 'Hit Protein Target & Avoid Refined Sugar', category: 'diet' }
+        ],
+        customSubjects: [
+          'Computer Science', 'Mathematics', 'System Design', 'Reading & Research', 'Language Study', 'General Study'
+        ],
+        dailyLogs: {} // Strictly empty on first launch; keyed by YYYY-MM-DD
+      };
+    }
+
     // Core State Model
-    let fiddyState = {
-      selectedDate: getTodayString(),
-      goals: {
-        calories: 2200,
-        protein: 130, // grams
-        carbs: 250,   // grams
-        fats: 65,     // grams
-        workoutMin: 45,
-        studyHours: 3.0
-      },
-      habits: [
-        { id: 'fit_drill', title: 'Daily Workout Session (Badminton/Run/Gym)', category: 'fitness' },
-        { id: 'fit_stretch', title: 'Mobility, Hip Flexor & Stretch', category: 'fitness' },
-        { id: 'study_focus', title: 'Complete 1+ Deep Work Focus Block', category: 'study' },
-        { id: 'study_review', title: 'Review Syllabus Notes & Formulas', category: 'study' },
-        { id: 'diet_clean', title: 'Hit Protein Target & Avoid Refined Sugar', category: 'diet' }
-      ],
-      customSubjects: [
-        'Computer Science', 'Mathematics', 'System Design', 'Reading & Research', 'Language Study', 'General Study'
-      ],
-      dailyLogs: {} // Keyed by YYYY-MM-DD
-    };
+    let fiddyState = createEmptyFiddyState();
 
     let activeView = 'dashboard';
-    let currentWeekOffset = 0;
+    let calendarViewYear = new Date().getFullYear();
+    let calendarViewMonth = new Date().getMonth();
+    let isCalendarCollapsed = false;
     let selectedPhotoBase64 = null;
 
     // Stopwatch State
@@ -1440,24 +1527,43 @@
     }
 
     /* ==========================================================
-       STATE STORAGE & INITIALIZATION
+       STATE STORAGE & INITIALIZATION (ZERO DUMMY DATA)
        ========================================================== */
+    function getStartDate() {
+      let startDate = localStorage.getItem(START_DATE_STORAGE);
+      if (!startDate || !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
+        startDate = getTodayString();
+        localStorage.setItem(START_DATE_STORAGE, startDate);
+      }
+      return startDate;
+    }
+
     function loadState() {
+      // Lock or initialize start date strictly to local YYYY-MM-DD
+      const startDate = getStartDate();
+
       try {
         const raw = localStorage.getItem(FIDDY_STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          fiddyState = { ...fiddyState, ...parsed };
+          fiddyState = { ...createEmptyFiddyState(), ...parsed };
         } else {
-          seedFiddyData();
+          fiddyState = createEmptyFiddyState();
+          saveState();
         }
       } catch (err) {
         console.error('Error loading state:', err);
-        seedFiddyData();
+        fiddyState = createEmptyFiddyState();
+        saveState();
       }
 
-      // Always start on Today
-      fiddyState.selectedDate = getTodayString();
+      // Start on Today (and ensure calendar opens to today's month/year)
+      const todayStr = getTodayString();
+      fiddyState.selectedDate = todayStr < startDate ? startDate : todayStr;
+      const selDateObj = parseDate(fiddyState.selectedDate);
+      calendarViewYear = selDateObj.getFullYear();
+      calendarViewMonth = selDateObj.getMonth();
+
       updateGeminiKeyIndicator();
     }
 
@@ -1471,7 +1577,7 @@
 
     function getDailyLog(dateStr) {
       if (!fiddyState.dailyLogs[dateStr]) {
-        fiddyState.dailyLogs[dateStr] = {
+        return {
           meals: [],
           fitnessSessions: [],
           studySessions: [],
@@ -1482,72 +1588,17 @@
       return fiddyState.dailyLogs[dateStr];
     }
 
-    /* Seed realistic performance data across past 5 days */
-    function seedFiddyData() {
-      const today = new Date();
-      for (let i = 4; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(today.getDate() - i);
-        const dStr = formatDate(d);
-
-        const isToday = (i === 0);
-        fiddyState.dailyLogs[dStr] = {
-          meals: [
-            {
-              id: 'm_' + dStr + '_1',
-              dishName: '3 Idlis with Sambar & Coconut Chutney',
-              calories: 320,
-              protein_g: 9,
-              carbs_g: 58,
-              fat_g: 6,
-              fiber_g: 5,
-              servingSize: '3 idlis + 1 cup sambar',
-              timestamp: new Date().toISOString()
-            },
-            {
-              id: 'm_' + dStr + '_2',
-              dishName: '2 Rotis with Dal Tadka and 100g Paneer',
-              calories: 520,
-              protein_g: 26,
-              carbs_g: 62,
-              fat_g: 18,
-              fiber_g: 8,
-              servingSize: '2 rotis + 1 bowl dal + 100g paneer',
-              timestamp: new Date().toISOString()
-            }
-          ],
-          fitnessSessions: [
-            {
-              id: 'fs_' + dStr + '_1',
-              type: i % 2 === 0 ? 'Badminton / Sport' : 'Running / Cardio',
-              duration: i % 2 === 0 ? 50 : 40,
-              intensity: 'High',
-              calories: i % 2 === 0 ? 430 : 380,
-              notes: i % 2 === 0 ? '3 fast games of badminton singles with sprint drills.' : '5.2 km outdoor tempo run.',
-              timestamp: new Date().toISOString()
-            }
-          ],
-          studySessions: [
-            {
-              id: 'ss_' + dStr + '_1',
-              subject: 'Computer Science',
-              duration: 50,
-              notes: 'Dynamic programming memoization and graph traversal patterns.',
-              timestamp: new Date().toISOString()
-            },
-            {
-              id: 'ss_' + dStr + '_2',
-              subject: 'System Design',
-              duration: 50,
-              notes: 'Distributed cache invalidation strategies and Redis cluster architecture.',
-              timestamp: new Date().toISOString()
-            }
-          ],
-          completedHabits: isToday ? ['fit_drill', 'study_focus'] : ['fit_drill', 'fit_stretch', 'study_focus', 'diet_clean'],
-          waterGlasses: isToday ? 5 : 8
+    function ensureDailyLog(dateStr) {
+      if (!fiddyState.dailyLogs[dateStr]) {
+        fiddyState.dailyLogs[dateStr] = {
+          meals: [],
+          fitnessSessions: [],
+          studySessions: [],
+          completedHabits: [],
+          waterGlasses: 0
         };
       }
-      saveState();
+      return fiddyState.dailyLogs[dateStr];
     }
 
     /* ==========================================================
@@ -1627,6 +1678,7 @@
       }
 
       function walkStreak(checkFn) {
+        const startDateStr = getStartDate();
         let count = 0;
         let d = parseDate(getTodayString());
 
@@ -1639,6 +1691,7 @@
 
         while (true) {
           const ds = formatDate(d);
+          if (ds < startDateStr) break;
           if (checkFn(ds)) {
             count++;
             d.setDate(d.getDate() - 1);
@@ -1657,93 +1710,193 @@
     }
 
     /* ==========================================================
-       DATE NAVIGATOR (WEEK STRIP)
+       FULL MONTH & YEAR CALENDAR NAVIGATOR
        ========================================================== */
-    function renderWeekStrip() {
-      const container = document.getElementById('week-strip-container');
-      container.innerHTML = '';
+    const MONTH_NAMES = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
 
-      const baseDate = new Date();
-      baseDate.setDate(baseDate.getDate() + (currentWeekOffset * 7));
+    function renderMonthCalendar() {
+      const grid = document.getElementById('month-calendar-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
 
-      // Calculate Monday of week
-      const day = baseDate.getDay();
-      const diffToMon = (day === 0 ? -6 : 1) - day;
-      const monday = new Date(baseDate);
-      monday.setDate(baseDate.getDate() + diffToMon);
-
-      const sunday = new Date(monday);
-      sunday.setDate(monday.getDate() + 6);
-
-      document.getElementById('week-range-text').textContent = 
-        `${getMonthDay(monday)} - ${getMonthDay(sunday)}`;
-
+      const startDateStr = getStartDate();
       const todayStr = getTodayString();
-      const pill = document.getElementById('date-status-pill');
-      if (fiddyState.selectedDate === todayStr) {
-        pill.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-black text-white';
-        pill.textContent = 'Today';
-      } else if (fiddyState.selectedDate < todayStr) {
-        pill.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-zinc-200 text-zinc-800';
-        pill.textContent = `Historical (${fiddyState.selectedDate})`;
-      } else {
-        pill.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-200';
-        pill.textContent = `Planned (${fiddyState.selectedDate})`;
+
+      // Update Month & Year selectors and labels
+      const monthSel = document.getElementById('cal-select-month');
+      const yearSel = document.getElementById('cal-select-year');
+      if (monthSel) monthSel.value = String(calendarViewMonth);
+      if (yearSel) {
+        // Ensure calendarViewYear exists in options (expand dynamically if outside 2025-2030)
+        if (!Array.from(yearSel.options).some(opt => Number(opt.value) === calendarViewYear)) {
+          const opt = document.createElement('option');
+          opt.value = String(calendarViewYear);
+          opt.textContent = String(calendarViewYear);
+          yearSel.appendChild(opt);
+        }
+        yearSel.value = String(calendarViewYear);
       }
 
-      // Render 7 buttons
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(monday);
-        d.setDate(monday.getDate() + i);
-        const dStr = formatDate(d);
-        const isSelected = (dStr === fiddyState.selectedDate);
-        const isToday = (dStr === todayStr);
+      const headerTitle = document.getElementById('cal-header-title');
+      if (headerTitle) {
+        headerTitle.textContent = `${MONTH_NAMES[calendarViewMonth]} ${calendarViewYear}`;
+      }
+
+      const startLabel = document.getElementById('cal-start-date-label');
+      if (startLabel) {
+        startLabel.textContent = startDateStr;
+      }
+
+      // Update Date Status Pill
+      const pill = document.getElementById('date-status-pill');
+      if (pill) {
+        if (fiddyState.selectedDate === todayStr) {
+          pill.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-black text-white';
+          pill.textContent = 'Today';
+        } else if (fiddyState.selectedDate < todayStr) {
+          pill.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-zinc-200 text-zinc-800';
+          pill.textContent = `Past (${fiddyState.selectedDate})`;
+        } else {
+          pill.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600 border border-zinc-200';
+          pill.textContent = `Upcoming (${fiddyState.selectedDate})`;
+        }
+      }
+
+      // Calculate first day of month and total days in month
+      const firstDayOfMonth = new Date(calendarViewYear, calendarViewMonth, 1).getDay(); // 0=Sun..6=Sat
+      const daysInMonth = new Date(calendarViewYear, calendarViewMonth + 1, 0).getDate();
+
+      // Leading empty padding cells
+      for (let i = 0; i < firstDayOfMonth; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'h-12 sm:h-14 rounded-xl bg-transparent';
+        grid.appendChild(emptyCell);
+      }
+
+      // Day cells 1..daysInMonth
+      for (let dayNum = 1; dayNum <= daysInMonth; dayNum++) {
+        const cellDate = new Date(calendarViewYear, calendarViewMonth, dayNum);
+        const dStr = formatDate(cellDate);
+        const isBeforeStart = dStr < startDateStr;
+        const isSelected = dStr === fiddyState.selectedDate;
+        const isToday = dStr === todayStr;
 
         const log = fiddyState.dailyLogs[dStr];
-        const fitDone = log && log.fitnessSessions && log.fitnessSessions.length > 0;
-        const studyDone = log && log.studySessions && log.studySessions.length > 0;
-        const mealDone = log && log.meals && log.meals.length > 0;
+        const fitDone = Boolean(log && ((log.fitnessSessions && log.fitnessSessions.length > 0) || (log.completedHabits && log.completedHabits.some(id => id.startsWith('fit_')))));
+        const studyDone = Boolean(log && log.studySessions && log.studySessions.length > 0);
+        const nutritionDone = Boolean(log && log.meals && log.meals.length > 0);
 
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.onclick = () => selectDate(dStr);
-        btn.className = `flex flex-col items-center justify-center p-2 rounded-xl transition cursor-pointer min-w-[42px] border ${
-          isSelected 
-            ? 'bg-black text-white border-black shadow-sm' 
-            : 'bg-white hover:bg-zinc-100 text-zinc-600 border-zinc-200'
-        } ${isToday && !isSelected ? 'ring-1 ring-black' : ''}`;
+        const cell = document.createElement('button');
+        cell.type = 'button';
 
-        btn.innerHTML = `
-          <span class="text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'text-zinc-300' : 'text-zinc-400'}">${getShortDayName(d)}</span>
-          <span class="text-sm font-black mt-0.5 ${isSelected ? 'text-white' : 'text-zinc-900'}">${d.getDate()}</span>
-          <!-- Activity Dot indicators -->
-          <div class="flex items-center gap-1 mt-1 h-1.5">
-            ${fitDone ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>' : ''}
-            ${studyDone ? '<span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>' : ''}
-            ${mealDone ? '<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>' : ''}
-          </div>
-        `;
-        container.appendChild(btn);
+        if (isBeforeStart) {
+          cell.disabled = true;
+          cell.title = 'Before Start Date';
+          cell.className = 'h-12 sm:h-14 rounded-xl flex flex-col items-center justify-center border border-zinc-200/50 bg-zinc-100/50 text-zinc-400 opacity-30 cursor-not-allowed select-none';
+          cell.innerHTML = `
+            <span class="text-xs font-semibold">${dayNum}</span>
+            <span class="text-[8px] uppercase tracking-tighter mt-0.5">Locked</span>
+          `;
+        } else {
+          cell.onclick = () => selectDate(dStr);
+          let stateClasses = 'bg-white hover:bg-zinc-100 hover:border-black text-zinc-900 border-zinc-200';
+          if (isSelected) {
+            stateClasses = 'bg-black text-white border-black shadow-sm';
+          } else if (isToday) {
+            stateClasses = 'bg-white hover:bg-zinc-100 text-black border-2 border-black';
+          }
+
+          cell.className = `h-12 sm:h-14 rounded-xl flex flex-col items-center justify-between py-1.5 px-1 border transition cursor-pointer relative ${stateClasses}`;
+
+          // Top indicator for Nutrition target/logged ring or checkmark
+          const nutritionBadge = nutritionDone
+            ? `<span class="w-2 h-2 rounded-full bg-amber-500 ${isSelected ? 'ring-1 ring-white' : ''}" title="Nutrition Logged"></span>`
+            : '';
+          const fitBadge = fitDone
+            ? `<span class="w-2 h-2 rounded-full bg-emerald-500 ${isSelected ? 'ring-1 ring-white' : ''}" title="Fitness Completed"></span>`
+            : '';
+          const studyBadge = studyDone
+            ? `<span class="w-2 h-2 rounded-full bg-indigo-500 ${isSelected ? 'ring-1 ring-white' : ''}" title="Study Logged"></span>`
+            : '';
+
+          cell.innerHTML = `
+            <span class="text-xs sm:text-sm font-extrabold leading-none ${isSelected ? 'text-white' : 'text-zinc-900'}">${dayNum}</span>
+            <div class="flex items-center justify-center gap-1 h-2.5">
+              ${fitBadge}${studyBadge}${nutritionBadge}
+            </div>
+          `;
+        }
+
+        grid.appendChild(cell);
       }
     }
 
     function selectDate(dStr) {
+      if (dStr < getStartDate()) {
+        showToast('Cannot select dates before your start date');
+        return;
+      }
       fiddyState.selectedDate = dStr;
+      const dObj = parseDate(dStr);
+      calendarViewYear = dObj.getFullYear();
+      calendarViewMonth = dObj.getMonth();
       saveState();
       renderAllViews();
+      if (activeView === 'analytics') {
+        updateAllCharts();
+      }
     }
 
     function selectToday() {
-      currentWeekOffset = 0;
-      fiddyState.selectedDate = getTodayString();
+      const todayStr = getTodayString();
+      const todayObj = parseDate(todayStr);
+      calendarViewYear = todayObj.getFullYear();
+      calendarViewMonth = todayObj.getMonth();
+      fiddyState.selectedDate = todayStr;
       saveState();
       renderAllViews();
-      showToast('Switched to Today');
+      if (activeView === 'analytics') {
+        updateAllCharts();
+      }
+      showToast('Jumped to Today');
     }
 
-    function shiftWeek(delta) {
-      currentWeekOffset += delta;
-      renderWeekStrip();
+    function shiftMonth(delta) {
+      calendarViewMonth += delta;
+      if (calendarViewMonth < 0) {
+        calendarViewMonth = 11;
+        calendarViewYear--;
+      } else if (calendarViewMonth > 11) {
+        calendarViewMonth = 0;
+        calendarViewYear++;
+      }
+      renderMonthCalendar();
+      lucide.createIcons();
+    }
+
+    function onCalendarDropdownChange() {
+      const monthSel = document.getElementById('cal-select-month');
+      const yearSel = document.getElementById('cal-select-year');
+      if (monthSel && yearSel) {
+        calendarViewMonth = parseInt(monthSel.value, 10);
+        calendarViewYear = parseInt(yearSel.value, 10);
+        renderMonthCalendar();
+        lucide.createIcons();
+      }
+    }
+
+    function toggleCalendarCollapse() {
+      const wrapper = document.getElementById('month-calendar-wrapper');
+      if (!wrapper) return;
+      isCalendarCollapsed = !isCalendarCollapsed;
+      if (isCalendarCollapsed) {
+        wrapper.classList.add('hidden');
+      } else {
+        wrapper.classList.remove('hidden');
+      }
     }
 
     /* ==========================================================
@@ -1790,7 +1943,7 @@
        RENDER COORDINATOR
        ========================================================== */
     function renderAllViews() {
-      renderWeekStrip();
+      renderMonthCalendar();
       renderStreaksHeader();
       renderDashboardGauges();
       renderDashboardChecklist();
@@ -1925,7 +2078,7 @@
     }
 
     function toggleHabit(habitId, checked) {
-      const log = getDailyLog(fiddyState.selectedDate);
+      const log = ensureDailyLog(fiddyState.selectedDate);
       if (!log.completedHabits) log.completedHabits = [];
 
       if (checked) {
@@ -1940,10 +2093,11 @@
       saveState();
       renderDashboardChecklist();
       renderStreaksHeader();
+      renderMonthCalendar();
     }
 
     function changeWater(delta) {
-      const log = getDailyLog(fiddyState.selectedDate);
+      const log = ensureDailyLog(fiddyState.selectedDate);
       log.waterGlasses = Math.max(0, Math.min(16, (log.waterGlasses || 0) + delta));
       saveState();
       document.getElementById('water-stat-txt').textContent = `${log.waterGlasses} / 8 Glasses (2.0L)`;
@@ -2025,13 +2179,21 @@
     }
 
     /* --- 2. AI NUTRITION TRACKER LOGIC --- */
+    function isNativeAndroidAiAvailable() {
+      return typeof window.Android !== 'undefined' && typeof window.Android.analyzeMealWithGemini === 'function';
+    }
+
     function updateGeminiKeyIndicator() {
-      const key = localStorage.getItem(GEMINI_KEY_STORAGE);
       const dot = document.getElementById('gemini-status-dot');
       const txt = document.getElementById('gemini-status-text');
       const input = document.getElementById('input-gemini-key');
+      const key = localStorage.getItem(GEMINI_KEY_STORAGE);
 
-      if (key && key.trim()) {
+      if (isNativeAndroidAiAvailable()) {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+        txt.textContent = 'Gemini AI Active';
+        if (input && key) input.value = key;
+      } else if (key && key.trim()) {
         dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
         txt.textContent = 'Gemini Key Active';
         if (input) input.value = key;
@@ -2092,8 +2254,9 @@
         return;
       }
 
+      const hasNativeAi = isNativeAndroidAiAvailable();
       const apiKey = localStorage.getItem(GEMINI_KEY_STORAGE);
-      if (!apiKey) {
+      if (!hasNativeAi && !apiKey) {
         openModal('settings-modal');
         showToast('Please configure your Gemini API Key first');
         return;
@@ -2106,6 +2269,62 @@
       submitBtn.disabled = true;
       submitBtn.classList.add('opacity-50');
 
+      if (hasNativeAi) {
+        // Native Firebase AI Logic integration via Android JavaScript Interface
+        window._nativeGeminiCallback = function(jsonResult, errorMsg) {
+          loader.classList.add('hidden');
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-50');
+
+          if (errorMsg) {
+            console.error('Native Gemini AI Error:', errorMsg);
+            showToast('AI recognition error: ' + errorMsg);
+            return;
+          }
+
+          try {
+            const cleanedJson = (jsonResult || '').replace(/```json/gi, '').replace(/```/g, '').trim();
+            const parsedDish = JSON.parse(cleanedJson);
+
+            const log = ensureDailyLog(fiddyState.selectedDate);
+            log.meals.push({
+              id: 'm_' + Date.now(),
+              dishName: parsedDish.dishName || mealDesc || 'Indian Meal',
+              calories: Math.round(Number(parsedDish.calories) || 0),
+              protein_g: Math.round(Number(parsedDish.protein_g) || 0),
+              carbs_g: Math.round(Number(parsedDish.carbs_g) || 0),
+              fat_g: Math.round(Number(parsedDish.fat_g) || 0),
+              fiber_g: Math.round(Number(parsedDish.fiber_g) || 0),
+              servingSize: parsedDish.servingSize || '1 standard portion',
+              timestamp: new Date().toISOString()
+            });
+
+            saveState();
+            textInput.value = '';
+            clearPhotoSelection();
+            renderAllViews();
+            playAudioTone('success');
+            showToast(`Analyzed & Logged: ${parsedDish.dishName}`);
+          } catch (parseErr) {
+            console.error('Failed to parse Native Gemini AI JSON:', parseErr, jsonResult);
+            showToast('Could not parse meal data from Gemini.');
+          }
+        };
+
+        const photoData = selectedPhotoBase64 ? selectedPhotoBase64.data : null;
+        try {
+          window.Android.analyzeMealWithGemini(mealDesc || "Indian Meal", photoData, 'window._nativeGeminiCallback');
+        } catch(bridgeErr) {
+          console.error("Bridge call error:", bridgeErr);
+          loader.classList.add('hidden');
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-50');
+          showToast("Failed to communicate with Android AI bridge");
+        }
+        return;
+      }
+
+      // Standalone Browser Web Fallback using Google AI Studio API Key
       try {
         const promptInstruction = `Analyze this Indian meal. Return strictly raw valid JSON with no markdown formatting and no codeblocks:
 {
@@ -2160,7 +2379,7 @@
         const parsedDish = JSON.parse(cleanedJson);
 
         // Append to state
-        const log = getDailyLog(fiddyState.selectedDate);
+        const log = ensureDailyLog(fiddyState.selectedDate);
         log.meals.push({
           id: 'm_' + Date.now(),
           dishName: parsedDish.dishName || mealDesc || 'Indian Meal',
@@ -2198,7 +2417,7 @@
       const carbs = parseInt(document.getElementById('manual-dish-carbs').value) || 0;
       const fats = parseInt(document.getElementById('manual-dish-fats').value) || 0;
 
-      const log = getDailyLog(fiddyState.selectedDate);
+      const log = ensureDailyLog(fiddyState.selectedDate);
       log.meals.push({
         id: 'm_' + Date.now(),
         dishName: name,
@@ -2272,7 +2491,7 @@
     }
 
     function deleteMeal(id) {
-      const log = getDailyLog(fiddyState.selectedDate);
+      const log = ensureDailyLog(fiddyState.selectedDate);
       log.meals = log.meals.filter(m => m.id !== id);
       saveState();
       renderAllViews();
@@ -2382,7 +2601,7 @@
       const calories = parseInt(document.getElementById('workout-cals').value) || (duration * 8);
       const notes = document.getElementById('workout-notes').value.trim();
 
-      const log = getDailyLog(fiddyState.selectedDate);
+      const log = ensureDailyLog(fiddyState.selectedDate);
       log.fitnessSessions.push({
         id: 'fs_' + Date.now(),
         type,
@@ -2406,7 +2625,7 @@
     }
 
     function deleteFitnessSession(id) {
-      const log = getDailyLog(fiddyState.selectedDate);
+      const log = ensureDailyLog(fiddyState.selectedDate);
       log.fitnessSessions = log.fitnessSessions.filter(s => s.id !== id);
       saveState();
       renderAllViews();
@@ -2566,7 +2785,7 @@
       showToast('HIIT Interval Routine Completed!');
 
       const mins = Math.max(5, Math.round((hiitTimer.totalRounds * (hiitTimer.workSec + hiitTimer.restSec)) / 60));
-      const log = getDailyLog(fiddyState.selectedDate);
+      const log = ensureDailyLog(fiddyState.selectedDate);
       log.fitnessSessions.push({
         id: 'fs_' + Date.now(),
         type: 'HIIT / Intervals',
@@ -2670,7 +2889,7 @@
       const mins = Math.round(pomodoro.workDuration / 60);
       const subject = pomodoro.activeSubject;
 
-      const log = getDailyLog(fiddyState.selectedDate);
+      const log = ensureDailyLog(fiddyState.selectedDate);
       log.studySessions.push({
         id: 'ss_' + Date.now(),
         subject,
@@ -2831,7 +3050,7 @@
       const duration = parseInt(document.getElementById('study-duration-input').value) || 50;
       const notes = document.getElementById('study-notes-input').value.trim();
 
-      const log = getDailyLog(fiddyState.selectedDate);
+      const log = ensureDailyLog(fiddyState.selectedDate);
       log.studySessions.push({
         id: 'ss_' + Date.now(),
         subject,
@@ -2852,7 +3071,7 @@
     }
 
     function deleteStudySession(id) {
-      const log = getDailyLog(fiddyState.selectedDate);
+      const log = ensureDailyLog(fiddyState.selectedDate);
       log.studySessions = log.studySessions.filter(s => s.id !== id);
       saveState();
       renderAllViews();
@@ -2913,11 +3132,16 @@
               legend: {
                 position: 'bottom',
                 labels: {
-                  boxWidth: 10,
-                  font: { family: 'Inter', size: 11, weight: 'bold' }
+                  boxWidth: 8,
+                  usePointStyle: true,
+                  pointStyle: 'circle',
+                  font: { family: 'Inter, sans-serif', size: 11, weight: '500' },
+                  color: '#52525b'
                 }
               },
               tooltip: {
+                titleFont: { family: 'Inter, sans-serif', weight: '600' },
+                bodyFont: { family: 'Inter, sans-serif', weight: '400' },
                 callbacks: {
                   label: function(item) {
                     return ` ${item.label}: ${item.raw}g`;
@@ -2930,19 +3154,36 @@
       }
     }
 
+    function getChartDateRange() {
+      const startStr = getStartDate();
+      const startDate = parseDate(startStr);
+      const today = parseDate(getTodayString());
+      const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+
+      const days = [];
+      if (diffDays < 6) {
+        // Plot 7 days starting strictly from fiddy_start_date forward (unlogged future/empty days = 0)
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(startDate);
+          d.setDate(startDate.getDate() + i);
+          days.push(d);
+        }
+      } else {
+        // Plot last 7 days ending today (all dates >= fiddy_start_date)
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          days.push(d);
+        }
+      }
+      return days;
+    }
+
     function renderActivityBarChart() {
       const ctx = document.getElementById('activityBarChart');
       if (!ctx) return;
 
-      // Extract last 7 days
-      const days = [];
-      const today = new Date();
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(today.getDate() - i);
-        days.push(d);
-      }
-
+      const days = getChartDateRange();
       const labels = days.map(d => `${getShortDayName(d)} ${d.getDate()}`);
       const fitMinutes = [];
       const studyMinutes = [];
@@ -2988,17 +3229,17 @@
               y: {
                 beginAtZero: true,
                 grid: { color: '#f4f4f5' },
-                ticks: { font: { family: 'Inter', size: 10 } }
+                ticks: { font: { family: 'Inter, sans-serif', size: 10, weight: '400' }, color: '#71717a' }
               },
               x: {
                 grid: { display: false },
-                ticks: { font: { family: 'Inter', size: 10, weight: 'bold' } }
+                ticks: { font: { family: 'Inter, sans-serif', size: 10, weight: '500' }, color: '#52525b' }
               }
             },
             plugins: {
               legend: {
                 position: 'top',
-                labels: { boxWidth: 10, font: { family: 'Inter', size: 11, weight: 'bold' } }
+                labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle', font: { family: 'Inter, sans-serif', size: 11, weight: '500' }, color: '#52525b' }
               }
             }
           }
@@ -3010,14 +3251,7 @@
       const ctx = document.getElementById('calorieLineChart');
       if (!ctx) return;
 
-      const days = [];
-      const today = new Date();
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(today.getDate() - i);
-        days.push(d);
-      }
-
+      const days = getChartDateRange();
       const labels = days.map(d => `${getShortDayName(d)} ${d.getDate()}`);
       const intakeData = [];
       const targetGoal = fiddyState.goals.calories || 2200;
@@ -3046,20 +3280,20 @@
               {
                 label: 'Calories Ingested',
                 data: intakeData,
-                borderColor: '#000000',
-                backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                borderWidth: 2.5,
+                borderColor: '#18181b',
+                backgroundColor: 'rgba(24, 24, 27, 0.04)',
+                borderWidth: 2,
                 fill: true,
                 tension: 0.3,
-                pointBackgroundColor: '#000000',
-                pointRadius: 4
+                pointBackgroundColor: '#18181b',
+                pointRadius: 3.5
               },
               {
                 label: 'Target Goal',
                 data: targetData,
                 borderColor: '#ef4444',
-                borderWidth: 2,
-                borderDash: [6, 6],
+                borderWidth: 1.5,
+                borderDash: [5, 5],
                 pointRadius: 0,
                 fill: false
               }
@@ -3072,17 +3306,17 @@
               y: {
                 beginAtZero: true,
                 grid: { color: '#f4f4f5' },
-                ticks: { font: { family: 'Inter', size: 10 } }
+                ticks: { font: { family: 'Inter, sans-serif', size: 10, weight: '400' }, color: '#71717a' }
               },
               x: {
                 grid: { display: false },
-                ticks: { font: { family: 'Inter', size: 10, weight: 'bold' } }
+                ticks: { font: { family: 'Inter, sans-serif', size: 10, weight: '500' }, color: '#52525b' }
               }
             },
             plugins: {
               legend: {
                 position: 'top',
-                labels: { boxWidth: 10, font: { family: 'Inter', size: 11, weight: 'bold' } }
+                labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle', font: { family: 'Inter, sans-serif', size: 11, weight: '500' }, color: '#52525b' }
               }
             }
           }
@@ -3113,14 +3347,18 @@
     }
 
     function exportFiddyData() {
-      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(fiddyState, null, 2));
+      const payload = {
+        startDate: getStartDate(),
+        state: fiddyState
+      };
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(payload, null, 2));
       const a = document.createElement('a');
       a.setAttribute('href', dataStr);
       a.setAttribute('download', `fiddy_backup_${getTodayString()}.json`);
       document.body.appendChild(a);
       a.click();
       a.remove();
-      showToast('FIDDY Backup Exported! 💾');
+      showToast('FIDDY Backup Exported!');
     }
 
     function importFiddyData(e) {
@@ -3131,10 +3369,21 @@
       reader.onload = (event) => {
         try {
           const parsed = JSON.parse(event.target.result);
-          if (parsed && parsed.dailyLogs) {
-            fiddyState = { ...fiddyState, ...parsed };
+          if (parsed && parsed.state && parsed.state.dailyLogs) {
+            if (parsed.startDate) {
+              localStorage.setItem(START_DATE_STORAGE, parsed.startDate);
+            }
+            fiddyState = { ...createEmptyFiddyState(), ...parsed.state };
             saveState();
             renderAllViews();
+            if (activeView === 'analytics') updateAllCharts();
+            closeModal('settings-modal');
+            showToast('Backup restored successfully!');
+          } else if (parsed && parsed.dailyLogs) {
+            fiddyState = { ...createEmptyFiddyState(), ...parsed };
+            saveState();
+            renderAllViews();
+            if (activeView === 'analytics') updateAllCharts();
             closeModal('settings-modal');
             showToast('Backup restored successfully!');
           } else {
@@ -3145,6 +3394,49 @@
         }
       };
       reader.readAsText(file);
+    }
+
+    function resetAllFiddyData() {
+      if (!confirm('Are you sure you want to permanently clear all logged meals, workouts, study sessions, and goals? Your start date will reset to today.')) {
+        return;
+      }
+
+      // Clear all FIDDY localStorage entries
+      [
+        FIDDY_STORAGE_KEY,
+        'fiddy_app_state_v2',
+        START_DATE_STORAGE,
+        USER_PROFILE_STORAGE,
+        DAILY_KCAL_STORAGE,
+        DAILY_PROTEIN_STORAGE,
+        DAILY_CARBS_STORAGE,
+        DAILY_FAT_STORAGE,
+        GOOGLE_USER_STORAGE
+      ].forEach(key => localStorage.removeItem(key));
+
+      // Reset start date strictly to today
+      const todayStr = getTodayString();
+      localStorage.setItem(START_DATE_STORAGE, todayStr);
+
+      // Stop any running timers
+      resetStopwatch();
+      resetHiitTimer();
+      resetPomodoroTimer();
+
+      // Reset in-memory state
+      currentUser = null;
+      fiddyState = createEmptyFiddyState();
+      fiddyState.selectedDate = todayStr;
+      const todayObj = parseDate(todayStr);
+      calendarViewYear = todayObj.getFullYear();
+      calendarViewMonth = todayObj.getMonth();
+
+      saveState();
+      renderGoogleAuthUI();
+      renderAllViews();
+      if (activeView === 'analytics') updateAllCharts();
+      closeModal('settings-modal');
+      showToast('All data reset. Timeline starts today.');
     }
 
     /* ==========================================================
